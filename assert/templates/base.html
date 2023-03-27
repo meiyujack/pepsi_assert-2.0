@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    {% block head %}
+    <title>{% block title %}{% endblock %} - Pepsi百事可乐</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <style type="text/css">
+        html{
+			height: 60%;
+		}
+		body{
+			margin: 0;
+			background: url("/static/background.png") no-repeat;
+			background-size: cover;
+			height: 100%;
+            width:95%;
+		}
+		#footer{
+		    text-align:center;
+		    position:absolute;
+            top:95%;
+            left:45%;
+		}
+        #message{
+            color:white;
+            text-align:center;
+        }
+        #message ul{
+            list-style:none;
+        }
+    </style>
+    {% endblock %}
+</head>
+<body>
+<div id="message">
+    <ul>
+        {% for message in get_flashed_messages() %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+<div id="content">{% block content %}{% endblock %}</div>
+<div id="footer">
+    {% block footer %}
+    &copy;CopyRight 2022 by meiyujack
+    {% endblock %}
+</div>
+</body>
+</html>

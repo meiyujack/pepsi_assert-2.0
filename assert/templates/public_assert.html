@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %}公共资产明细统计表{% endblock %}
+{% block head %}
+{{ super() }}
+<style type="text/css">
+    h1{
+        text-align: center;
+        margin-right:10%;
+    }
+    #curr_user{
+        float: right;
+        margin-right: 200px;
+        font-size: large;
+        font-family: MicrosoftYaHei;
+    }
+    #content{
+        width: 1200px;
+        height: 300px;
+        position: absolute;
+        top: 5%;
+        left: 15%;
+    }
+    .cell{
+        width: 1140px;
+        height: 95px;
+        margin-left: 30px;
+        margin-top: 50px;
+    }
+    input{
+        border: solid #a9a9a9 1px;
+        margin: 20px 40px 20px 10px;
+        vertical-align: middle;
+    }
+    input:focus{
+        outline: solid #4d90fe 1px;
+    }
+    input[name="department"]{
+        width: 60px;
+    }
+    input[name="goods"]{
+        width: 200px;
+    }
+    .price input{
+        width: 60px;
+        margin-right: 5px;
+    }
+    label[for="bought_date"]{
+        margin-left:72px;
+    }
+    label[for="assert_admin"]{
+        margin-left:73px;
+    }
+    label[for="TDM"]{
+        margin-left:165px;
+    }
+    input[value]{
+        padding: 0 16px;
+        border: solid orange 2px;
+        border-radius: 5px;
+        font-size: 1.1em;
+        background-color: transparent;
+        float: left;
+        margin: 16px 0px;
+        position:absolute;
+    }
+    legend{
+        font-size: larger;
+    }
+    .price{
+        display: inline;
+        width: 145px;
+        height: 21px;
+        margin-right: 30px;
+    }
+    label{
+        vertical-align: middle;
+    }
+    em{
+        vertical-align: middle;
+    }
+    table{
+        border: solid black 1px;
+        text-align: center;
+        vertical-align: middle;
+        border-collapse: collapse;
+        margin:100px auto;
+    }
+    table tr {
+        border: solid black 1px;
+        background:grey;
+        opacity:85%;
+    }
+    #TDM{
+        width:50px;
+    }
+    #cbb{
+        margin-left:11px;
+        margin-top:22px;
+        width: 30px;
+        height:20px
+    }
+
+
+
+
+
+
+</style>
+{% endblock %}
+{% block content %}
+<div id="h1"><h1>{{ department }}公共资产明细统计表</h1></div>
+<div id="curr_user"><span><a href="{{ request.referrer }}">{{ curr_user.username }}</a></span></div>
+<form method="post">
+    <div class="cell">
+        <!--            {% if curr_user is defined %}-->
+        <!--    value of variable: {{ curr_user }}-->
+        <!--    {% else %}-->
+        <!--    curr_user is not defined-->
+        <!--    {% endif %}-->
+
+        <label for="assert_type">资产分类</label>
+        <select name="assert_type" required>
+            <option value="房屋及建筑物">房屋及建筑物</option>
+            <option value="办公家具">办公家具</option>
+            <option value="电脑及打印机">电脑及打印机</option>
+            <option value="家电">家电</option>
+            <option value="机械设备">机械设备</option>
+            <option value="数码产品">数码产品</option>
+            <option value="车辆">车辆</option>
+            <option value="其他">其他</option>
+        </select>
+        <label for="assert_id">资产编码</label><input type="text" name="assert_id" required>
+        <label for="assert_name">资产名称</label><input type="text" name="assert_name" required>
+        <label for="assert_module">资产型号</label><input type="text" name="assert_module" id="assert_module" required>
+        <br>
+        <label for="YoN">是否固定资产</label>
+        <input type="checkbox" name="YoN" checked value="True" id="cbb">
+
+        <label for="bought_date">购买日期</label><input type="date" name="bought_date" required>
+        <label for="assert_admin">资产管理员</label>
+        <select name="assert_admin" required>
+            <option value="汪鸿">汪鸿</option>
+            <option value="赵攀">赵攀</option>
+            <option value="冯倩">冯倩</option>
+        </select>
+
+        <label for="TDM">部门负责人</label><input type="text" name="TDM" id="TDM" required>
+        <input type="submit" name="submit" value="提交">
+    </div>
+</form>
+<div id="table">
+    <table cellpadding="10">
+        {%- for row in table %}
+        <tr>
+            {%- for value in row %}
+            <td>{{value}}</td>
+            {%- endfor %}
+        </tr>
+        {%- endfor %}
+    </table>
+</div>
+{% endblock %}

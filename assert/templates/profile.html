@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}个人中心{% endblock %}
+{% block head %}
+{{ super() }}
+<style type="text/css">
+    #navigate{
+        width:120px;
+        height:200px;
+        margin-top:200px;
+        margin-left:110px;
+        float:left;
+        background:grey;
+        opacity:75%;
+    }
+    ul{
+        list-style:none;
+        padding-left:26px;
+    }
+    #info{
+        width:200px;
+        height:300px;
+        border:solid 1px black;
+        position:absolute;
+        top:180px;
+        left:800px;
+        line-height:50px;
+    }
+    select{
+        width:90px;
+    }
+    input[type="tel"]{
+        width:70px;
+    }
+    input[type="submit"]{
+        float:right;
+        margin-right:30px;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div id="navigate">
+    <ul>
+        <li><a href="{{ url_for('ledger.public_show',uid=curr_user.user_id) }}">公共资产</a></li>
+        <li><a href="{{ url_for('ledger.private_show',uid=curr_user.user_id) }}">个人资产</a></li>
+    </ul>
+</div>
+<div id="info">
+<!--    {% if curr_user is defined %}-->
+<!--    value of variable: {{ curr_user }}-->
+<!--    {% else %}-->
+<!--    curr_user is not defined-->
+<!--    {% endif %}-->
+    <form method="post">
+        <label for="avatar">头像</label><input type="file" name="avatar" accept="image/png, image/jpeg"><img src="" id="avatar">
+        <label for="gender">性别</label><input type="radio" value="1" name="gender">男<input type="radio" value="0" name="gender">女<br>
+        <label for="department">部门</label>
+        <select name="department" required>
+        </select><br>
+        <label for="tel">电话</label><input type="tel" placeholder="{{ curr_user.telephone }}"><br>
+        <input type="submit" value="提交">
+    </form>
+</div>
+{% endblock %}
