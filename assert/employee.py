@@ -36,7 +36,7 @@ class Employee():
         return {prop: getattr(self, prop, None) for prop in properties}
 
     @staticmethod
-    async def get_user_byid(user_id):
+    async def get_user_by_id(user_id):
         user = await db.select_db("user", user_id=user_id)
         if user:
             _ = Employee(user[0][1])
@@ -51,8 +51,13 @@ class Employee():
         return None
 
     @staticmethod
-    async def get_user_bynames(username) -> list:
+    async def get_user_by_name(username) -> list:
         return await db.select_db("user", username=username)
+
+    @staticmethod
+    async def get_department_by_id(department_id):
+        department = await db.select_db('department', 'department_name', department_id=department_id)
+        return department[0][0]
 
     async def insert_user(self):
         msg = await db.upsert('user',

@@ -109,7 +109,7 @@
 {% endblock %}
 {% block content %}
 <div id="h1"><h1>{{ department }}公共资产明细统计表</h1></div>
-<div id="curr_user"><span><a href="{{ request.referrer }}">{{ curr_user.username }}</a></span></div>
+<div id="curr_user"><span><a href="{{ url_for('user.profile')+'?'+request.full_path.split('?')[1] }}">{{ curr_user.username }}</a></span></div>
 <form method="post">
     <div class="cell">
         <!--            {% if curr_user is defined %}-->
@@ -135,7 +135,7 @@
         <br>
         <label for="YoN">是否固定资产</label>
         <input type="checkbox" name="YoN" checked value="True" id="cbb">
-
+        <input type="checkbox" name="YoN" value="False" hidden checked>
         <label for="bought_date">购买日期</label><input type="date" name="bought_date" required>
         <label for="assert_admin">资产管理员</label>
         <select name="assert_admin" required>

@@ -5,6 +5,7 @@
     {% block head %}
     <title>{% block title %}{% endblock %} - Pepsi百事可乐</title>
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <script type="text/javascript" src="/static/jquery-3.6.4.min.js"></script>
     <style type="text/css">
         html{
 			height: 60%;
@@ -29,6 +30,7 @@
         #message ul{
             list-style:none;
         }
+
     </style>
     {% endblock %}
 </head>
@@ -36,7 +38,7 @@
 <div id="message">
     <ul>
         {% for message in get_flashed_messages() %}
-            <li>{{ message }}</li>
+        <li>{{ message }}</li>
         {% endfor %}
     </ul>
 </div>

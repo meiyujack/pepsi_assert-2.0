@@ -1,5 +1,5 @@
 from apiflask import APIFlask
-
+from flask import redirect,url_for
 from .user import user
 from .ledger import ledger
 
@@ -14,4 +14,4 @@ app.register_blueprint(ledger)
 
 @app.get('/')
 def index():
-    return {'message': 'hello'}
+    return redirect(url_for('user.login_show'))

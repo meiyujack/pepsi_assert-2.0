@@ -25,25 +25,35 @@
         left:800px;
         line-height:50px;
     }
+    form{
+        margin-left:15px;
+    }
     select{
-        width:90px;
+        width:100px;
     }
     input[type="tel"]{
-        width:70px;
+        width:80px;
     }
     input[type="submit"]{
         float:right;
         margin-right:30px;
+    }
+    em{
+        color:red;
+    }
+    #logout{
+        float:right
     }
 </style>
 {% endblock %}
 {% block content %}
 <div id="navigate">
     <ul>
-        <li><a href="{{ url_for('ledger.public_show',uid=curr_user.user_id) }}">公共资产</a></li>
-        <li><a href="{{ url_for('ledger.private_show',uid=curr_user.user_id) }}">个人资产</a></li>
+        <li><a href="{{ url_for('ledger.public_show',token=token) }}">公共资产</a></li>
+        <li><a href="{{ url_for('ledger.private_show',token=token) }}">个人资产</a></li>
     </ul>
 </div>
+<div id="logout"><a href="{{url_for('user.logout',token=token)}}">登出</a></div>
 <div id="info">
 <!--    {% if curr_user is defined %}-->
 <!--    value of variable: {{ curr_user }}-->
@@ -52,12 +62,57 @@
 <!--    {% endif %}-->
     <form method="post">
         <label for="avatar">头像</label><input type="file" name="avatar" accept="image/png, image/jpeg"><img src="" id="avatar">
-        <label for="gender">性别</label><input type="radio" value="1" name="gender">男<input type="radio" value="0" name="gender">女<br>
-        <label for="department">部门</label>
-        <select name="department" required>
+        <label for="gender">性别</label>
+        <label hidden id="gender">{{ curr_user.gender }}</label>
+        <option id="di_dn" hidden value="{{curr_user.department_id}}">{{department}}</option>
+            <input type="radio" value="1" name="gender">男
+            <input type="radio" value="0" name="gender">女
+        <br>
+        <label for="department">部门<em>*</em></label>
+        <select name="department" id="department" required>
+                <option value="">请选择部门：</option>
         </select><br>
-        <label for="tel">电话</label><input type="tel" placeholder="{{ curr_user.telephone }}"><br>
+        <label for="tel">电话</label><input type="tel" name="tel" placeholder="{{ curr_user.telephone }}"><br>
         <input type="submit" value="提交">
     </form>
 </div>
+<script type="text/javascript">
+$(function(){
+                nums=$("input[name='gender']").length
+                for (i=0;i<nums;i++)
+                {
+                    if ($("input[name='gender']")[i].value==$("#gender")[0].innerHTML)
+                    {
+                        $("input[name='gender']")[i].checked=true
+                    }
+                }
+                department_o=$("#di_dn")[0]
+                department=$("#department")[0]
+                if (department_o.text.length>0)
+                {
+                    department.selectedOptions[0].value=department_o.value;
+                    department.selectedOptions[0].text=department_o.text;
+                }
+
+    $("#department").mousedown(function(){
+        $.ajax({
+            url:'/user/departments?token='+location.search.substring(7),
+            //type:'get',
+            success:function(data){
+                if (data.length>1)
+                {
+                    departments=eval(data);
+                    if ($("#department")[0].options.length==1)
+                    {
+                        for (i=0;i<departments.length;i++)
+                        {
+                            $("#department")[0].add(new Option(departments[i][1],departments[i][0]));
+                        }
+                    }
+                }
+            }
+        });
+    })
+})
+</script>
 {% endblock %}
