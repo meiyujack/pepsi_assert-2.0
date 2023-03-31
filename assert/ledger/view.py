@@ -71,13 +71,14 @@ async def public_post(data, query_data):
     curr_user = await get_user_by_token(curr_token)
     curr_department_name = await Employee.get_department_by_id(int(curr_user.department_id))
     workbook,sheet=await get_which_workbook('templates/public0.xlsx',curr_department_name)
-
+    rows = sheet.max_row
+    rows += 1
     for l in range(len("CDEFGHIJ")):
-        sheet["CDEFGHIJ"[l] + str(sheet.max_row)] = [data['assert_type'], data['assert_id'], data['assert_name'],
+        sheet["CDEFGHIJ"[l] + str(rows)] = [data['assert_type'], data['assert_id'], data['assert_name'],
                                                     data['assert_module'], '是' if data['YoN'] == 'True' else '否', data['bought_date'],
                                                     data['assert_admin'], data['TDM']][l]
 
-        sheet["CDEFGHIJ"[l] + str(sheet.max_row)].alignment = alignment
+        sheet["CDEFGHIJ"[l] + str(rows)].alignment = alignment
     sheet['H6'] = data['assert_admin']
     workbook.save(f"download/public_{curr_department_name}.xlsx")
     return redirect(url_for('ledger.public_show', token=curr_token))
@@ -104,12 +105,14 @@ async def private_post(data, query_data):
     curr_token = query_data['token']
     curr_user = await get_user_by_token(curr_token)
     workbook,sheet=await get_which_workbook("templates/private0.xlsx",curr_user.username)
+    rows=sheet.max_row
+    rows+=1
     for l in range(len("CDEFGHI")):
-        sheet["CDEFGHI"[l] + str(sheet.max_row + 1)] = [data['assert_type'], data['assert_id'], data['assert_name'],
+        sheet["CDEFGHI"[l] + str(rows)] = [data['assert_type'], data['assert_id'], data['assert_name'],
                                                        data['assert_module'], '是' if data['YoN'] == 'True' else '否',
                                                        data['bought_date'],
                                                        data['assert_admin']][l]
 
-        sheet["CDEFGHI"[l] + str(sheet.max_row + 1)].alignment = alignment
+        sheet["CDEFGHI"[l] + str(rows)].alignment = alignment
     workbook.save(f"download/private_{curr_user.username}.xlsx")
     return redirect(url_for('ledger.private_show', token=curr_token))

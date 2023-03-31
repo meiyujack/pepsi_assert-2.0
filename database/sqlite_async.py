@@ -26,13 +26,14 @@ class AsyncSqlite(Database):
     async def select_db(self, table, get='*', prep=None, **condition):
         await self.connect_db()
         sql = f"SELECT {get} FROM {table}"
-        where = f" WHERE {','.join(condition.keys())}={','.join(['?'])}"
-        if len(condition) == 1:
-            sql += where
-        else:
-            where = f' {prep} '.join(
-                [f"{''.join(m.keys())}={''.join(['?'])}" for m in [{i: j} for i, j in condition.items()]])
-            sql += ' WHERE ' + where
+        if condition:
+            where = f" WHERE {','.join(condition.keys())}={','.join(['?'])}"
+            if len(condition) == 1:
+                sql += where
+            else:
+                where = f' {prep} '.join(
+                    [f"{''.join(m.keys())}={''.join(['?'])}" for m in [{i: j} for i, j in condition.items()]])
+                sql += ' WHERE ' + where
         try:
             async with self.conn.execute(sql, tuple(condition.values())) as cursor:
                 return await cursor.fetchall()

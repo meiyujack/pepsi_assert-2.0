@@ -99,10 +99,10 @@
         width: 30px;
         height:20px
     }
-
-
-
-
+    #download{
+        float:right;
+        margin-right: -80px;
+    }
 
 
 </style>
@@ -110,6 +110,7 @@
 {% block content %}
 <div id="h1"><h1>{{ department }}公共资产明细统计表</h1></div>
 <div id="curr_user"><span><a href="{{ url_for('user.profile')+'?'+request.full_path.split('?')[1] }}">{{ curr_user.username }}</a></span></div>
+<div id="download"><a href="{{url_for('admin.download')+'?'+request.full_path.split('?')[1]}}">下载</a></div>
 <form method="post">
     <div class="cell">
         <!--            {% if curr_user is defined %}-->
