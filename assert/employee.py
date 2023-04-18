@@ -1,18 +1,20 @@
 import uuid
+import os
 
 from werkzeug.security import check_password_hash, generate_password_hash
-from apiflask import Schema
-
-from database.sqlite_async import AsyncSqlite
-
 import aiosqlite
 
+from database.sqlite_async import AsyncSqlite
+from auth import WebSecurity
+
 db = AsyncSqlite(aiosqlite, file_address="../assert.db", sql_address="table.sql")
+secure = WebSecurity(os.getenv('SECRET_KEY'))
 
 
 class Employee():
     def __init__(self, username):
         self.user_id = None
+        self.role_id = None
         self.username = username
         self.password = None
         self.create_time = None
@@ -39,14 +41,15 @@ class Employee():
     async def get_user_by_id(user_id):
         user = await db.select_db("user", user_id=user_id)
         if user:
-            _ = Employee(user[0][1])
+            _ = Employee(user[0][2])
             _.user_id = user[0][0]
-            _.password = user[0][2]
-            _.create_time = user[0][3]
-            _.gender = user[0][4]
-            _.department_id = user[0][5]
-            _.avatar = user[0][6]
-            _.telephone = user[0][7]
+            _.role_id = user[0][1]
+            _.password = user[0][3]
+            _.create_time = user[0][4]
+            _.gender = user[0][5]
+            _.department_id = user[0][6]
+            _.avatar = user[0][7]
+            _.telephone = user[0][8]
             return _
         return None
 
@@ -58,6 +61,13 @@ class Employee():
     async def get_department_by_id(department_id):
         department = await db.select_db('department', 'department_name', department_id=department_id)
         return department[0][0]
+
+    @staticmethod
+    async def get_user_by_token(token):
+        user_id = secure.get_info_by_token(token, 'uid')
+        if user_id:
+            curr_user = await Employee.get_user_by_id(user_id=user_id)
+            return curr_user
 
     async def insert_user(self):
         msg = await db.upsert('user',
@@ -86,3 +96,12 @@ class Employee():
     def check_password(self, password):
         is_valid = check_password_hash(self.password, password)
         return is_valid
+
+    async def alter_password(self, new):
+        self.set_password(password=new)
+        await db.upsert('user', {"password": self.password, "user_id": self.user_id, 'username': self.username}, 1)
+
+    async def get_privileges(self,token):
+        rid=secure.get_info_by_token(token,key='rid')
+        permissions = await db.just_exe(f'SELECT permission_name from permission p join role_permission rp ON p.permission_id =rp.permission_id WHERE rp.role_id ={rid};')
+        return permissions

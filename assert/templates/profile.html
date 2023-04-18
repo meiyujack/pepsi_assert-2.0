@@ -12,6 +12,13 @@
         background:grey;
         opacity:75%;
     }
+    #curr_user{
+        position:absolute;
+        top:50px;
+        left:900px;
+        font-size: large;
+        font-family: MicrosoftYaHei;
+    }
     ul{
         list-style:none;
         padding-left:26px;
@@ -42,7 +49,9 @@
         color:red;
     }
     #logout{
-        float:right
+        position:absolute;
+        top:50px;
+        left:975px;
     }
 </style>
 {% endblock %}
@@ -52,7 +61,12 @@
         <li><a href="{{ url_for('ledger.public_show',token=token) }}">公共资产</a></li>
         <li><a href="{{ url_for('ledger.private_show',token=token) }}">个人资产</a></li>
     </ul>
+    <ul>
+        <li><a href="{{ url_for('user.update_password',token=token) }}">修改密码</a></li>
+        <li><a href="{{ url_for('admin.get_all_asserts_by_personal',token=token) }}" hidden>管理资产</a></li>
+    </ul>
 </div>
+<div id="curr_user"><span><a href="{{ url_for('user.profile')+'?'+request.full_path.split('?')[1] }}">{{ curr_user.username }}</a></span></div>
 <div id="logout"><a href="{{url_for('user.logout',token=token)}}">登出</a></div>
 <div id="info">
 <!--    {% if curr_user is defined %}-->
@@ -78,7 +92,27 @@
 </div>
 <script type="text/javascript">
 $(function(){
-                nums=$("input[name='gender']").length
+                $.ajax({
+            url:'/admin/get_privileges?token='+location.search.substring(7),
+            success:function(data){
+                if (data.length>1)
+                {
+                    $('#navigate ul li a')[3].hidden=false;
+                }
+            }
+        });
+
+                a=document.getElementsByTagName("a")[0];
+                function show()
+                {   department=document.getElementById("department");
+                    if (department.selectedOptions[0].value=="")
+                    {
+                        alert("请先选择部门！");
+                        return false;
+                    }
+                };
+                a.onclick=show;
+                nums=$("input[name='gender']").length;
                 for (i=0;i<nums;i++)
                 {
                     if ($("input[name='gender']")[i].value==$("#gender")[0].innerHTML)
@@ -113,6 +147,7 @@ $(function(){
             }
         });
     })
+
 })
 </script>
 {% endblock %}

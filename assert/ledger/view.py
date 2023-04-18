@@ -1,8 +1,8 @@
 import os
 
 from . import ledger
-from ..employee import Employee
-from ..user.view import TokenIn, get_user_by_token
+from ..employee import Employee,secure
+from ..user.view import TokenIn
 
 from flask import render_template, url_for, redirect,flash
 from openpyxl import load_workbook
@@ -49,18 +49,25 @@ class PublicAssert(BaseAssert):
 @ledger.input(TokenIn, location='query')
 async def public_show(query_data):
     curr_token = query_data['token']
-    curr_user = await get_user_by_token(curr_token)
+    curr_user = await Employee.get_user_by_token(curr_token)
+
     if curr_user.department_id:
         curr_department_name = await Employee.get_department_by_id(int(curr_user.department_id))
+        privileges = await curr_user.get_privileges(curr_token)
+        if len(privileges) > 1:
+            return redirect(url_for('admin.get_all_asserts_by_department',token=curr_token))
+        else:
+            # workbook, sheet = await get_which_workbook('templates/public0.xlsx', curr_department_name)
+            # table = []
+            # for row in sheet.iter_rows(min_row=8, max_row=sheet.max_row, min_col=3, max_col=sheet.max_column,
+            #                            values_only=True):
+            #     if None not in row:
+            #         table.append(row)
+            return render_template('public_assert.html', curr_user=curr_user)
     else:
         flash("请完善个人基本信息")
-        return redirect(url_for('user.profile'))
-    workbook,sheet=await get_which_workbook('templates/public0.xlsx',curr_department_name)
-    table = []
-    for row in sheet.iter_rows(min_row=8, max_row=sheet.max_row, min_col=3, max_col=sheet.max_column, values_only=True):
-        if None not in row:
-            table.append(row)
-    return render_template('public_assert.html', table=table, curr_user=curr_user)
+        return ''
+
 
 
 @ledger.post('/public')
@@ -68,7 +75,7 @@ async def public_show(query_data):
 @ledger.input(TokenIn, location='query')
 async def public_post(data, query_data):
     curr_token = query_data['token']
-    curr_user = await get_user_by_token(curr_token)
+    curr_user = await Employee.get_user_by_token(curr_token)
     curr_department_name = await Employee.get_department_by_id(int(curr_user.department_id))
     workbook,sheet=await get_which_workbook('templates/public0.xlsx',curr_department_name)
     rows = sheet.max_row
@@ -88,7 +95,7 @@ async def public_post(data, query_data):
 @ledger.input(TokenIn, location='query')
 async def private_show(query_data):
     curr_token = query_data['token']
-    curr_user = await get_user_by_token(curr_token)
+    curr_user = await Employee.get_user_by_token(curr_token)
     workbook,sheet=await get_which_workbook('templates/private0.xlsx',curr_user.username)
     table = []
     for row in sheet.iter_rows(min_row=8, max_row=sheet.max_row, min_col=3, max_col=sheet.max_column, values_only=True):
@@ -103,7 +110,7 @@ async def private_show(query_data):
 @ledger.input(TokenIn, location='query')
 async def private_post(data, query_data):
     curr_token = query_data['token']
-    curr_user = await get_user_by_token(curr_token)
+    curr_user = await Employee.get_user_by_token(curr_token)
     workbook,sheet=await get_which_workbook("templates/private0.xlsx",curr_user.username)
     rows=sheet.max_row
     rows+=1

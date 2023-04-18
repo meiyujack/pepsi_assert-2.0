@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}公共资产明细统计表{% endblock %}
+{% block head %}
+{{ super() }}
+<style type="text/css">
+    h1{
+        text-align: center;
+        margin-right:10%;
+    }
+    #curr_user{
+        float: right;
+        margin-top:-25px;
+        margin-right: 200px;
+        font-size: large;
+        font-family: MicrosoftYaHei;
+    }
+    span{
+        font-size: larger;
+    }
+    #download{
+        margin-left:800px;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div id="h1"><h1>相关部门私人资产明细一览表</h1></div>
+<div id="curr_user"><span><a href="{{ url_for('user.profile')+'?'+request.full_path.split('?')[1] }}">{{ curr_user.username }}</a></span></div>
+<div id="table">
+    {%- for k,v in tables.items() %}
+    <span>{{k}}</span><span id="download"><a href="{{url_for('admin.download')+'?'+request.full_path.split('?')[1]+'&department='+k}}">下载</a></span>
+    <table cellpadding="10">
+        {%- for row in v %}
+        <tr>
+            {%- for value in row %}
+            <td>{{value}}</td>
+            {%- endfor %}
+        </tr>
+        {%- endfor %}
+    </table>
+    <br>
+    {%- endfor %}
+</div>
+{% endblock %}
