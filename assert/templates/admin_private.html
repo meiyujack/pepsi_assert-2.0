@@ -15,7 +15,8 @@
         font-family: MicrosoftYaHei;
     }
     span{
-        font-size: larger;
+        font-size: medium;
+        padding:0px 20px;
     }
     #download{
         margin-left:800px;
@@ -24,20 +25,30 @@
 {% endblock %}
 {% block content %}
 <div id="h1"><h1>相关部门私人资产明细一览表</h1></div>
-<div id="curr_user"><span><a href="{{ url_for('user.profile')+'?'+request.full_path.split('?')[1] }}">{{ curr_user.username }}</a></span></div>
+<div id="curr_user"><a href="{{ url_for('user.profile')+'?'+request.full_path.split('?')[1] }}">{{ curr_user.username }}</a></div>
 <div id="table">
     {%- for k,v in tables.items() %}
-    <span>{{k}}</span><span id="download"><a href="{{url_for('admin.download')+'?'+request.full_path.split('?')[1]+'&department='+k}}">下载</a></span>
+    <h4>{{k}}</h4><span id="download"><a href="{{url_for('admin.download')+'?'+request.full_path.split('?')[1]+'&department='+k}}">下载</a></span><!--<span id="remove"><a href="{{url_for('admin.delete')+'?'+request.full_path.split('?')[1]+'&department='+k}}">删除</a></span>-->
     <table cellpadding="10">
         {%- for row in v %}
-        <tr>
+        <tr id="{{loop.index}}">
             {%- for value in row %}
             <td>{{value}}</td>
             {%- endfor %}
+<!--            <td><button class="{{loop.index}}" onclick="window.location.href='{{url_for('admin.delete')+'?'+request.full_path.split('?')[1]+'&username='+k+'&rowid='+(loop.index+9)|string}}';">删除</button></td>-->
         </tr>
         {%- endfor %}
     </table>
     <br>
     {%- endfor %}
 </div>
+<script type="text/javascript">
+    $(function(){
+        nums=$('.1').length;
+        for (i=0;i<nums;i++)
+        {
+            $('button.1')[i].hidden=true;
+        }
+    })
+</script>
 {% endblock %}

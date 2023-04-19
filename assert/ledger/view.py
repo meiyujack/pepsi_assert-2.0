@@ -113,7 +113,7 @@ async def private_post(data, query_data):
     curr_user = await Employee.get_user_by_token(curr_token)
     workbook,sheet=await get_which_workbook("templates/private0.xlsx",curr_user.username)
     rows=sheet.max_row
-    rows+=1
+    rows += 1
     for l in range(len("CDEFGHI")):
         sheet["CDEFGHI"[l] + str(rows)] = [data['assert_type'], data['assert_id'], data['assert_name'],
                                                        data['assert_module'], '是' if data['YoN'] == 'True' else '否',

@@ -17,6 +17,10 @@ secure = WebSecurity('ocefjVp_pL4Iens21FTjsA')
 class DownloadIn(TokenIn):
     department = String(required=True)
 
+class DeleteIn(TokenIn):
+    username=String(required=True)
+    rowid=String(required=True)
+
 
 def get_accurate_file(path, pattern):
     result = []
@@ -72,7 +76,6 @@ async def get_all_asserts_by_department(data):
     curr_user = await Employee.get_user_by_token(token)
     privileges = await curr_user.get_privileges(token)
     files = get_accurate_file("download/", 'download/public_*')
-    result = {}
     if len(privileges) == 4:
         if not files:
             return '暂无人员添加公共资产信息'
@@ -223,12 +226,12 @@ async def get_all_asserts_by_personal(data):
         result = {}
         num = 0
         for user in users:
-            if not os.path.exists(f'download/private_{user}.xlsx'):
+            if not os.path.exists(f'download/private_{user[0]}.xlsx'):
                 num += 1
                 if num == len(users):
                     return '暂无人员添加个人资产信息'
             else:
-                workbook = load_workbook(f'download/private_{user}.xlsx')
+                workbook = load_workbook(f'download/private_{user[0]}.xlsx')
                 sheet = workbook.active
                 table = []
                 for row in sheet.iter_rows(min_row=8, max_row=sheet.max_row, min_col=3,
@@ -236,7 +239,7 @@ async def get_all_asserts_by_personal(data):
                                            values_only=True):
                     if None not in row:
                         table.append(row)
-                result[user] = table
+                result[user[0]] = table
         return render_template('admin_private.html', tables=result, curr_user=curr_user)
 
 
@@ -253,5 +256,25 @@ async def download(data):
                 return send_file(path_or_file=f'download/public_{department}.xlsx')
             if os.path.exists(f'download/private_{department}.xlsx'):
                 return send_file(path_or_file=f'download/private_{department}.xlsx')
+    else:
+        return json.dumps({"402": "你没有权限！"}, ensure_ascii=False)
+
+
+@admin.get('/delete')
+@admin.input(DeleteIn, location='query')
+async def delete(data):
+    token = data["token"]
+    username = data["username"]
+    rowid=data["rowid"]
+    curr_user = await Employee.get_user_by_token(token)
+    privileges = await curr_user.get_privileges(token)
+    for privilege in privileges:
+        if 'delete' in privilege[0]:
+            if os.path.exists(f'download/private_{username}.xlsx'):
+                workbook=load_workbook(f'download/private_{username}.xlsx')
+                sheet=workbook.active
+                for l in range(len("CDEFGHI")):
+                    sheet["CDEFGHI"[l] + str(rowid)] = ['', '', '','', '','',''][l]
+                workbook.save(f"download/private_{username}.xlsx")
     else:
         return json.dumps({"402": "你没有权限！"}, ensure_ascii=False)
