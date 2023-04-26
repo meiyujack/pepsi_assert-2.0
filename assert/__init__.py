@@ -12,7 +12,7 @@ from .ledger import ledger
 from .admin import admin
 
 app = APIFlask(__name__, title='固定资产管理系统', version='0.01')
-app.secret_key=os.getenv("FLASK_CONFIG")
+app.secret_key = os.getenv("FLASK_CONFIG")
 
 app.register_blueprint(user)
 app.register_blueprint(ledger)
