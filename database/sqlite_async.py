@@ -46,7 +46,7 @@ class AsyncSqlite(Database):
         insert or update data into table in database.
         @param table: str, table's name.
         @param data: dict, data's form.
-        @param constraint: int, primary key's index of data, alternative, especially for sqlite3's update sentence.
+        @param constraint: int, primary key's index of data, alternative. sqlite3 NEEDED.
         @return: None, except for error message.
         """
         await self.connect_db()
@@ -62,3 +62,12 @@ class AsyncSqlite(Database):
         except self.server.Error as ex:
             await self.conn.rollback()
             return f"Error: {ex}"
+
+    async def just_exe(self, sql):
+        """Just execute sql command. Like more than one table query"""
+
+        try:
+            async with self.conn.execute(sql) as cursor:
+                return await cursor.fetchall()
+        except self.server.Error as ex:
+            return f"Error:{ex}"

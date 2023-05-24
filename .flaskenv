@@ -1,2 +1,2 @@
-FLASK_APP=.
-FLASK_CONFIG=development
+FLASK_APP=assert:app
+FLASK_CONFIG=production
