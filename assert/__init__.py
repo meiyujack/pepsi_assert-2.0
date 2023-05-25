@@ -23,7 +23,7 @@ from sqlite3 import dbapi2
 
 
 def init_db():
-    engine = dbapi2.connect("../assert.db")
+    engine = dbapi2.connect("assert.db")
     engine.row_factory = sqlite3.Row
     with open("table.sql") as f:
         engine.cursor().executescript(f.read())
@@ -34,7 +34,7 @@ def init_db():
 def init_data():
     """注入基础数据"""
     # 用户表
-    db = sqlite3.connect("../assert.db")
+    db = sqlite3.connect("assert.db")
 
     my = Employee("my")
     my.set_password('123')

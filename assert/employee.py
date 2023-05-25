@@ -7,7 +7,7 @@ import aiosqlite
 from database.sqlite_async import AsyncSqlite
 from auth import WebSecurity
 
-db = AsyncSqlite(aiosqlite, file_address="../assert.db", sql_address="table.sql")
+db = AsyncSqlite(aiosqlite, file_address="assert.db", sql_address="table.sql")
 secure = WebSecurity(os.getenv('SECRET_KEY'))
 
 
