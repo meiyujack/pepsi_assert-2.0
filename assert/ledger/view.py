@@ -96,7 +96,7 @@ async def public_post(data, query_data):
 async def private_show(query_data):
     curr_token = query_data['token']
     curr_user = await Employee.get_user_by_token(curr_token)
-    workbook,sheet=await get_which_workbook('templates/private0.xlsx',curr_user.username)
+    workbook,sheet=await get_which_workbook('assert/templates/private0.xlsx',curr_user.username)
     table = []
     for row in sheet.iter_rows(min_row=8, max_row=sheet.max_row, min_col=3, max_col=sheet.max_column, values_only=True):
         if None not in row:
@@ -111,7 +111,7 @@ async def private_show(query_data):
 async def private_post(data, query_data):
     curr_token = query_data['token']
     curr_user = await Employee.get_user_by_token(curr_token)
-    workbook,sheet=await get_which_workbook("templates/private0.xlsx",curr_user.username)
+    workbook,sheet=await get_which_workbook("assert/templates/private0.xlsx",curr_user.username)
     rows=sheet.max_row
     rows += 1
     for l in range(len("CDEFGHI")):
