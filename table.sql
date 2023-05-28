@@ -7,7 +7,7 @@ CREATE TABLE department(
 
 DROP TABLE IF EXISTS user;
 CREATE TABLE user(
-    user_id TEXT PRIMARY KEY,
+    user_id INTEGER PRIMARY KEY,
     role_id INTEGER DEFAULT 1,
     username TEXT NOT NULL unique,
     password TEXT NOT NULL,

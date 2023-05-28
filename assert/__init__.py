@@ -39,37 +39,37 @@ def init_data():
     my = Employee("my")
     my.set_password('123')
     db.cursor().execute(
-        f"INSERT INTO user (user_id, role_id, username, password) VALUES ('{uuid.uuid4()}',4, '{my.username}', '{my.password}')")
+        f"INSERT INTO user (user_id, role_id, username, password) VALUES (0,4, '{my.username}', '{my.password}')")
 
     mei = Employee('梅煜')
     mei.set_password('12345')
     db.cursor().execute(
-        f"INSERT INTO user (user_id,username, password) VALUES ('{uuid.uuid4()}','{mei.username}', '{mei.password}')")
+        f"INSERT INTO user (user_id,username, password) VALUES (104900,'{mei.username}', '{mei.password}')")
 
     xy = Employee("徐勇")
     xy.set_password('12345')
     db.cursor().execute(
-        f"INSERT INTO user (user_id, role_id, username, password) VALUES ('{uuid.uuid4()}',4, '{xy.username}', '{xy.password}')")
+        f"INSERT INTO user (user_id, role_id, username, password) VALUES (100194,4, '{xy.username}', '{xy.password}')")
 
     wy = Employee("汪洋")
     wy.set_password('12345')
     db.cursor().execute(
-        f"INSERT INTO user (user_id, role_id, username, password) VALUES ('{uuid.uuid4()}',4, '{wy.username}', '{wy.password}')")
+        f"INSERT INTO user (user_id, role_id, username, password) VALUES (100342,4, '{wy.username}', '{wy.password}')")
 
     zp = Employee("赵攀")
     zp.set_password('12345')
     db.cursor().execute(
-        f"INSERT INTO user (user_id, role_id, username, password) VALUES ('{uuid.uuid4()}',2, '{zp.username}', '{zp.password}')")
+        f"INSERT INTO user (user_id, role_id, username, password) VALUES (104897,2, '{zp.username}', '{zp.password}')")
 
     wh = Employee("汪鸿")
     wh.set_password('12345')
     db.cursor().execute(
-        f"INSERT INTO user (user_id, role_id, username, password) VALUES ('{uuid.uuid4()}',2, '{wh.username}', '{wh.password}')")
+        f"INSERT INTO user (user_id, role_id, username, password) VALUES (104970,2, '{wh.username}', '{wh.password}')")
 
     fq = Employee("冯倩")
     fq.set_password('12345')
     db.cursor().execute(
-        f"INSERT INTO user (user_id, role_id, username, password) VALUES ('{uuid.uuid4()}',2, '{fq.username}', '{fq.password}')")
+        f"INSERT INTO user (user_id, role_id, username, password) VALUES (104971,2, '{fq.username}', '{fq.password}')")
 
     # 角色表
     db.cursor().execute("INSERT INTO role VALUES (4,'Administrator', '超级管理员')")

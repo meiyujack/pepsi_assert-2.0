@@ -1,21 +1,25 @@
 import uuid
 import os
+import sqlite3
 
 from werkzeug.security import check_password_hash, generate_password_hash
 import aiosqlite
 
 from database.sqlite_async import AsyncSqlite
+from database import Database
 from auth import WebSecurity
 
 db = AsyncSqlite(aiosqlite, file_address="assert.db", sql_address="table.sql")
-secure = WebSecurity(os.getenv('SECRET_KEY'))
+base = Database(sqlite3, file_address="pepsi_yc")
+
+secure = WebSecurity(os.getenv('SECRET_KEY','ocefjVp_pL4Iens21FTjsA'))
 
 
-class Employee():
-    def __init__(self, username):
-        self.user_id = None
+class Employee:
+    def __init__(self, user_id):
+        self.user_id = user_id
         self.role_id = None
-        self.username = username
+        self.username = None
         self.password = None
         self.create_time = None
         self.gender = None
@@ -23,15 +27,16 @@ class Employee():
         self.avatar = None
         self.telephone = None
 
-    @property
-    def username(self):
-        return self._username
+    async def get_username(self):
+        await base.connect_db()
+        username = await base.select_db("user", 'name', uid=self.user_id)
+        self.username = username[0][0]
 
-    @username.setter
-    def username(self, value):
-        if not value:
-            raise ValueError("必须有用户名")
-        self._username = value
+    # @username.getter
+    # def username(self, value):
+    #     if not value:
+    #         raise ValueError("必须有用户名")
+    #     self._username = value
 
     def to_dict(self):
         properties = ['username']
@@ -41,9 +46,9 @@ class Employee():
     async def get_user_by_id(user_id):
         user = await db.select_db("user", user_id=user_id)
         if user:
-            _ = Employee(user[0][2])
-            _.user_id = user[0][0]
+            _ = Employee(user[0][0])
             _.role_id = user[0][1]
+            _.username=user[0][2]
             _.password = user[0][3]
             _.create_time = user[0][4]
             _.gender = user[0][5]
@@ -53,9 +58,6 @@ class Employee():
             return _
         return None
 
-    @staticmethod
-    async def get_user_by_name(username) -> list:
-        return await db.select_db("user", username=username)
 
     @staticmethod
     async def get_department_by_id(department_id):
@@ -101,7 +103,8 @@ class Employee():
         self.set_password(password=new)
         await db.upsert('user', {"password": self.password, "user_id": self.user_id, 'username': self.username}, 1)
 
-    async def get_privileges(self,token):
-        rid=secure.get_info_by_token(token,key='rid')
-        permissions = await db.just_exe(f'SELECT permission_name from permission p join role_permission rp ON p.permission_id =rp.permission_id WHERE rp.role_id ={rid};')
+    async def get_privileges(self, token):
+        rid = secure.get_info_by_token(token, key='rid')
+        permissions = await db.just_exe(
+            f'SELECT permission_name from permission p join role_permission rp ON p.permission_id =rp.permission_id WHERE rp.role_id ={rid};')
         return permissions

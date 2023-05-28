@@ -8,11 +8,9 @@ from apiflask import Schema, HTTPTokenAuth
 from apiflask.fields import String, Integer, Raw
 from apiflask.validators import Length
 
-from ..employee import Employee, db,secure
-
+from ..employee import Employee, db, secure
 
 token_auth = HTTPTokenAuth(scheme='token')
-
 
 
 class PasswordIn(Schema):
@@ -21,16 +19,12 @@ class PasswordIn(Schema):
 
 
 class UserIn(Schema):
-    username = String(required=True, validate=Length(0, 10))
+    userid = String(required=True, validate=Length(6))
     password = String(required=True)
 
 
 class TokenIn(Schema):
     token = String(required=True)
-
-
-
-
 
 
 class ProfileIn(Schema):
@@ -49,12 +43,10 @@ async def login_show():
 @user.input(UserIn, location='form')
 # @user_bp.output(UserOut)
 async def login_post(data):
-    curr_user = Employee(username=data.get('username'))
-    result = await Employee.get_user_by_name(curr_user.username)
-    if result:
-        curr_user.password = result[0][3]
+    curr_user = await Employee.get_user_by_id(data.get('userid'))
+    if curr_user:
         if curr_user.check_password(password=data.get('password')):
-            token = secure.generate_token({'uid': result[0][0], 'rid': result[0][1]})
+            token = secure.generate_token({'uid': curr_user.user_id, 'rid': curr_user.role_id})
             # response.headers['token'] = token
             return redirect(url_for('user.profile', token=token))
     flash("请检查用户名或密码。或还未注册？")
@@ -78,8 +70,9 @@ async def sign_show():
 @user.post('/signup')
 @user.input(UserIn, location='form')
 async def sign_post(data):
-    wanna_user = Employee(username=data['username'])
-    result = await Employee.get_user_by_name(wanna_user.username)
+    wanna_user = Employee(user_id=data['userid'])
+    await wanna_user.get_username()
+    result = await Employee.get_user_by_id(wanna_user.user_id)
     if not result:
         wanna_user.set_password(data['password'])
         if not await wanna_user.insert_user():
