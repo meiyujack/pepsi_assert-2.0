@@ -23,6 +23,10 @@ class UserIn(Schema):
     password = String(required=True)
 
 
+class SignupIn(UserIn):
+    username = String(required=True)
+
+
 class TokenIn(Schema):
     token = String(required=True)
 
@@ -68,14 +72,16 @@ async def sign_show():
 
 
 @user.post('/signup')
-@user.input(UserIn, location='form')
+@user.input(SignupIn, location='form')
 async def sign_post(data):
-    wanna_user = Employee(user_id=data['userid'])
-    await wanna_user.get_username()
-    result = await Employee.get_user_by_id(wanna_user.user_id)
-    if not result:
+    result = await Employee.get_user_by_id(data['userid'])
+    if result:
+        return redirect(url_for('user.login_show'))
+    else:
+        wanna_user = Employee(data['userid'])
+        wanna_user.username=data['username']
         wanna_user.set_password(data['password'])
-        if not await wanna_user.insert_user():
+        if not await wanna_user.insert_user(data['userid']):
             flash(f"{wanna_user.username}注册成功～")
             return redirect(url_for('user.login_show'))
     return render_template('signup.html')

@@ -14,23 +14,34 @@
 			box-shadow: 10px 10px grey;
 		}
 		form .signupTopText{
-			font-size: 28px;
+			font-size: 26px;
 			text-align: center;
-			line-height: 36px;
+			line-height: 30px;
 			font-family: "STXingkai";
 			margin-top: 30px;
-			margin-bottom:90px;
+			margin-bottom:70px;
 			height: 28px;
 		}
-		form .signupUserText{
+		form .signupIDText{
 			font-size: 15px;
-			line-height: 15px;
+			line-height: 12px;
 			height: 18px;
 			text-indent: 52px;
 			margin-top: 55px;
 		}
-		form .signupUserNode{
-			height: 46px;
+		form .signupIDNode{
+			height: 40px;
+			width: 299px;
+			margin-top: -34px;
+			margin-left: 108px;
+			border: 2px solid rgb(218, 218, 218);
+			border-radius: 3px;
+			background: url(/static/pepsi.png) no-repeat;
+			background-size:contain;
+		}
+
+		form .signupNameNode{
+			height: 40px;
 			width: 299px;
 			margin-top: -34px;
 			margin-left: 108px;
@@ -38,7 +49,9 @@
 			border-radius: 3px;
 			background: url(/static/user.png) no-repeat 16px 12px;
 		}
-		form .usernameInput{
+
+
+		form .useridInput{
 			height: 96%;
 			float: left;
 			margin-left: 58px;
@@ -49,13 +62,13 @@
 
 		form .signupPasswordText{
 			font-size: 15px;
-			line-height: 15px;
+			line-height: 12px;
 			height: 18px;
 			text-indent: 52px;
 			margin-top: 55px;
 		}
 		form .signupPasswordNode{
-			height: 46px;
+			height: 40px;
 			width: 299px;
 			margin-top: -34px;
 			margin-left: 108px;
@@ -74,13 +87,13 @@
 
 		form .signupVerifyText{
 			font-size: 15px;
-			line-height: 15px;
+			line-height: 12px;
 			height: 18px;
 			text-indent: 52px;
 			margin-top: 55px;
 		}
 		form .signupVerifyNode{
-			height: 46px;
+			height: 40px;
 			width: 152px;
 			margin-top: -34px;
 			margin-left: 108px;
@@ -112,8 +125,8 @@
 			color: rgb(21, 129, 215);
 		}
 		form .button{
-			width: 362px;
-			height: 51px;
+			width: 300px;
+			height: 50px;
 			margin: 0 auto;
 			line-height: 53px;
 			text-align: center;
@@ -121,8 +134,8 @@
 			color: white;
 			background: url(/static/bg_button.png) repeat no-repeat;
 			border-radius: 8px;
-			margin-top: 36px;
-			margin-left:50px;
+			margin-top: 20px;
+			margin-left:110px;
 			border: 1px solid rgb(76, 100, 136);
 			cursor: pointer;
 		}
@@ -131,10 +144,13 @@
 {% block content %}
 <form method="post">
     <div class="signupTopText"><strong>欢迎注册<br>百事可乐资产系统</strong></div>
-    <div class="signupUserText">工&nbsp&nbsp&nbsp号</div>
-    <div class="signupUserNode"><input type="text" name="userid" class="useridInput" placeholder="请输入工号"/></div>
+    <div class="signupIDText">工&nbsp&nbsp&nbsp号</div>
+    <div class="signupIDNode"><input type="text" name="userid" class="useridInput" placeholder="请输入工号"/></div>
+    <div class="signupIDText"><label for="username">姓&nbsp&nbsp&nbsp名</label></div>
+    <div class="signupNameNode"><input type="text" id="username" name="username" class="useridInput" placeholder="请输入姓名"></div>
     <div class="signupPasswordText">密&nbsp&nbsp&nbsp码</div>
     <div class="signupPasswordNode"><input type="password" name="password" class="passwordInput" placeholder="请输入密码"></div>
+
     <input class="button" type="submit" value="注册"/>
 </form>
 {% endblock %}

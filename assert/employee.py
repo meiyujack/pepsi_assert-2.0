@@ -71,9 +71,9 @@ class Employee:
             curr_user = await Employee.get_user_by_id(user_id=user_id)
             return curr_user
 
-    async def insert_user(self):
+    async def insert_user(self,user_id):
         msg = await db.upsert('user',
-                              {'user_id': str(uuid.uuid4()), 'username': self.username, 'password': self.password},
+                              {'user_id': user_id, 'username': self.username, 'password': self.password},
                               constraint=0)
         if msg:
             return msg
