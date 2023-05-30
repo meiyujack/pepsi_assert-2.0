@@ -12,7 +12,7 @@ from auth import WebSecurity
 db = AsyncSqlite(aiosqlite, file_address="assert.db", sql_address="table.sql")
 base = Database(sqlite3, file_address="pepsi_yc")
 
-secure = WebSecurity(os.getenv('SECRET_KEY','ocefjVp_pL4Iens21FTjsA'))
+secure = WebSecurity(os.getenv('SECRET_KEY', 'ocefjVp_pL4Iens21FTjsA'))
 
 
 class Employee:
@@ -26,11 +26,6 @@ class Employee:
         self.department_id = None
         self.avatar = None
         self.telephone = None
-
-    async def get_username(self):
-        await base.connect_db()
-        username = await base.select_db("user", 'name', uid=self.user_id)
-        self.username = username[0][0]
 
     # @username.getter
     # def username(self, value):
@@ -48,7 +43,7 @@ class Employee:
         if user:
             _ = Employee(user[0][0])
             _.role_id = user[0][1]
-            _.username=user[0][2]
+            _.username = user[0][2]
             _.password = user[0][3]
             _.create_time = user[0][4]
             _.gender = user[0][5]
@@ -57,7 +52,6 @@ class Employee:
             _.telephone = user[0][8]
             return _
         return None
-
 
     @staticmethod
     async def get_department_by_id(department_id):
@@ -71,7 +65,7 @@ class Employee:
             curr_user = await Employee.get_user_by_id(user_id=user_id)
             return curr_user
 
-    async def insert_user(self,user_id):
+    async def insert_user(self, user_id):
         msg = await db.upsert('user',
                               {'user_id': user_id, 'username': self.username, 'password': self.password},
                               constraint=0)

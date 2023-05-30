@@ -82,7 +82,7 @@ async def sign_post(data):
         return redirect(url_for('user.login_show'))
     else:
         wanna_user = Employee(data['userid'])
-        await wanna_user.get_username()
+        wanna_user.username=data['username']
         wanna_user.set_password(data['password'])
         if not await wanna_user.insert_user(data['userid']):
             flash(f"{wanna_user.username}注册成功～")

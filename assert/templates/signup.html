@@ -145,7 +145,7 @@
 <form method="post">
     <div class="signupTopText"><strong>欢迎注册<br>百事可乐资产系统</strong></div>
     <div class="signupIDText">工&nbsp&nbsp&nbsp号</div>
-    <div class="signupIDNode"><input type="text" id="userid" class="useridInput" placeholder="请输入工号"/></div>
+    <div class="signupIDNode"><input type="text" id="userid" name="userid" class="useridInput" placeholder="请输入工号"/></div>
     <div class="signupIDText"><label for="username">姓&nbsp&nbsp&nbsp名</label></div>
     <div class="signupNameNode"><input type="text" id="username" name="username" class="useridInput" placeholder="请输入姓名"></div>
     <div class="signupPasswordText">密&nbsp&nbsp&nbsp码</div>
@@ -163,7 +163,7 @@ $(function(){
                 if (data.length>0)
                 {
                     $('#username')[0].value=data;
-                    $('#username')[0].disabled=true;
+                    $('#username').attr("readonly",true);
                 }
             }
         });
