@@ -8,7 +8,7 @@ from apiflask import Schema, HTTPTokenAuth
 from apiflask.fields import String, Integer, Raw
 from apiflask.validators import Length
 
-from ..employee import Employee, db, secure
+from ..employee import Employee, db, secure, base
 
 token_auth = HTTPTokenAuth(scheme='token')
 
@@ -18,8 +18,11 @@ class PasswordIn(Schema):
     new_password = String(required=True)
 
 
-class UserIn(Schema):
+class UserIdIn(Schema):
     userid = String(required=True, validate=Length(6))
+
+
+class UserIn(UserIdIn):
     password = String(required=True)
 
 
@@ -85,6 +88,17 @@ async def sign_post(data):
             flash(f"{wanna_user.username}注册成功～")
             return redirect(url_for('user.login_show'))
     return render_template('signup.html')
+
+
+@user.get('/name')
+@user.input(UserIdIn,location='query')
+async def get_your_name(data):
+    await base.connect_db()
+    username = await base.select_db("user", 'name', uid=data['userid'])
+    if username:
+        username = username[0][0]
+        return username
+    return ''
 
 
 @user.get('/profile')
