@@ -36,40 +36,81 @@ def init_data():
     # 用户表
     db = sqlite3.connect("assert.db")
 
-    my = Employee("my")
-    my.set_password('123')
-    db.cursor().execute(
-        f"INSERT INTO user (user_id, role_id, username, password) VALUES (0,4, '{my.username}', '{my.password}')")
+    db.cursor().execute(f"INSERT INTO department VALUES (1,'生产部','生产营运部')")
+    db.cursor().execute(f"INSERT INTO department VALUES (2,'财务部','')")
+    db.cursor().execute(f"INSERT INTO department VALUES (3,'人事部','')")
+    db.cursor().execute(f"INSERT INTO department VALUES (4,'市场部','市场发展部')")
+    db.cursor().execute(f"INSERT INTO department VALUES (5,'物流部','')")
+    db.cursor().execute(f"INSERT INTO department VALUES (6,'行政部','')")
+    db.cursor().execute(f"INSERT INTO department VALUES (7,'宜昌所','宜昌市内及市外')")
+    db.cursor().execute(f"INSERT INTO department VALUES (8,'恩施办','')")
+    db.cursor().execute(f"INSERT INTO department VALUES (9,'荆州所','')")
+    db.cursor().execute(f"INSERT INTO department VALUES (10,'襄阳所','')")
+    db.cursor().execute(f"INSERT INTO department VALUES (11,'十堰办','')")
+    db.cursor().execute(f"INSERT INTO department VALUES (12,'荆门办','')")
+    db.cursor().execute(f"INSERT INTO department VALUES (13,'特渠部','')")
 
-    mei = Employee('梅煜')
-    mei.set_password('12345')
-    db.cursor().execute(
-        f"INSERT INTO user (user_id,username, password) VALUES (104900,'{mei.username}', '{mei.password}')")
+    db.cursor().execute(f"INSERT INTO category VALUES ('1','房屋及建筑物','')")
+    db.cursor().execute(f"INSERT INTO category VALUES ('2','办公家具','')")
+    db.cursor().execute(f"INSERT INTO category VALUES ('3','电脑及打印机','')")
+    db.cursor().execute(f"INSERT INTO category VALUES ('4','家电','')")
+    db.cursor().execute(f"INSERT INTO category VALUES ('5','机械设备','')")
+    db.cursor().execute(f"INSERT INTO category VALUES ('6','数码产品','')")
+    db.cursor().execute(f"INSERT INTO category VALUES ('7','车辆','')")
+    db.cursor().execute(f"INSERT INTO category VALUES ('8','其他','')")
 
-    xy = Employee("徐勇")
-    xy.set_password('12345')
-    db.cursor().execute(
-        f"INSERT INTO user (user_id, role_id, username, password) VALUES (100194,4, '{xy.username}', '{xy.password}')")
+    db.cursor().execute(f"INSERT INTO type (tid,name,cid) VALUES ('01','建筑物','1')")
+    db.cursor().execute(f"INSERT INTO type (tid,name,cid) VALUES ('02','房屋','1')")
+    db.cursor().execute(f"INSERT INTO type (tid,name,cid) VALUES ('01','桌','2')")
+    db.cursor().execute(f"INSERT INTO type (tid,name,cid) VALUES ('02','椅','2')")
+    db.cursor().execute(f"INSERT INTO type (tid,name,cid) VALUES ('01','电脑','3')")
+    db.cursor().execute(f"INSERT INTO type (tid,name,cid) VALUES ('02','打印机','3')")
+    db.cursor().execute(f"INSERT INTO type (tid,name,cid) VALUES ('01','风扇','4')")
+    db.cursor().execute(f"INSERT INTO type (tid,name,cid) VALUES ('02','取暖器','4')")
+    db.cursor().execute(f"INSERT INTO type (tid,name,cid) VALUES ('03','白板','4')")
+    db.cursor().execute(f"INSERT INTO type (tid,name,cid) VALUES ('04','净水机','4')")
+    db.cursor().execute(f"INSERT INTO type (tid,name,cid) VALUES ('05','烘手机','4')")
 
-    wy = Employee("汪洋")
-    wy.set_password('12345')
-    db.cursor().execute(
-        f"INSERT INTO user (user_id, role_id, username, password) VALUES (100342,4, '{wy.username}', '{wy.password}')")
+    db.cursor().execute(f"INSERT INTO type (tid,name,cid) VALUES ('01','激光笔','6')")
+    db.cursor().execute(f"INSERT INTO type (tid,name,cid) VALUES ('02','TypeC转网口转换器','6')")
+    db.cursor().execute(f"INSERT INTO type (tid,name,cid) VALUES ('01','轿车','7')")
+    db.cursor().execute(f"INSERT INTO type (tid,name,cid) VALUES ('02','SUV','7')")
+    db.cursor().execute(f"INSERT INTO type (tid,name,cid) VALUES ('03','MPV','7')")
 
-    zp = Employee("赵攀")
-    zp.set_password('12345')
-    db.cursor().execute(
-        f"INSERT INTO user (user_id, role_id, username, password) VALUES (104897,2, '{zp.username}', '{zp.password}')")
+    # my = Employee("my")
+    # my.set_password('123')
+    # db.cursor().execute(
+    #     f"INSERT INTO user (user_id, role_id, username, password) VALUES (0,4, '{my.username}', '{my.password}')")
 
-    wh = Employee("汪鸿")
-    wh.set_password('12345')
-    db.cursor().execute(
-        f"INSERT INTO user (user_id, role_id, username, password) VALUES (104970,2, '{wh.username}', '{wh.password}')")
-
-    fq = Employee("冯倩")
-    fq.set_password('12345')
-    db.cursor().execute(
-        f"INSERT INTO user (user_id, role_id, username, password) VALUES (104971,2, '{fq.username}', '{fq.password}')")
+    # mei = Employee(104900)
+    # mei.set_password('12345')
+    # db.cursor().execute(
+    #     f"INSERT INTO user (user_id,username, password) VALUES (104900,'{mei.username}', '{mei.password}')")
+    #
+    # xy = Employee("徐勇")
+    # xy.set_password('12345')
+    # db.cursor().execute(
+    #     f"INSERT INTO user (user_id, role_id, username, password) VALUES (100194,4, '{xy.username}', '{xy.password}')")
+    #
+    # wy = Employee("汪洋")
+    # wy.set_password('12345')
+    # db.cursor().execute(
+    #     f"INSERT INTO user (user_id, role_id, username, password) VALUES (100342,4, '{wy.username}', '{wy.password}')")
+    #
+    # zp = Employee("赵攀")
+    # zp.set_password('12345')
+    # db.cursor().execute(
+    #     f"INSERT INTO user (user_id, role_id, username, password) VALUES (104897,2, '{zp.username}', '{zp.password}')")
+    #
+    # wh = Employee("汪鸿")
+    # wh.set_password('12345')
+    # db.cursor().execute(
+    #     f"INSERT INTO user (user_id, role_id, username, password) VALUES (104970,2, '{wh.username}', '{wh.password}')")
+    #
+    # fq = Employee("冯倩")
+    # fq.set_password('12345')
+    # db.cursor().execute(
+    #     f"INSERT INTO user (user_id, role_id, username, password) VALUES (104971,2, '{fq.username}', '{fq.password}')")
 
     # 角色表
     db.cursor().execute("INSERT INTO role VALUES (4,'Administrator', '超级管理员')")

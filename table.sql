@@ -2,7 +2,23 @@ DROP TABLE IF EXISTS department;
 CREATE TABLE department(
     department_id INTEGER PRIMARY KEY AUTOINCREMENT,
     department_name TEXT NOT NULL,
-    department_comment
+    comment TEXT
+);
+
+DROP TABLE IF EXISTS category;
+CREATE TABLE category(
+    cid TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    comment TEXT
+);
+
+DROP TABLE IF EXISTS type;
+CREATE TABLE type(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tid TEXT NOT NULL,
+    name TEXT NOT NULL,
+    cid TEXT NOT NULL,
+    FOREIGN KEY(cid) REFERENCES category(cid)
 );
 
 DROP TABLE IF EXISTS user;
