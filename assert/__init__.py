@@ -12,7 +12,7 @@ from .ledger import ledger
 from .admin import admin
 
 app = APIFlask(__name__, title='固定资产管理系统', version='0.01')
-app.secret_key = os.getenv("SECRET_KEY",'ocefjVp_pL4Iens21FTjsA')
+app.secret_key = os.getenv("SECRET_KEY", 'ocefjVp_pL4Iens21FTjsA')
 
 app.register_blueprint(user)
 app.register_blueprint(ledger)
@@ -77,40 +77,10 @@ def init_data():
     db.cursor().execute(f"INSERT INTO type (tid,name,cid) VALUES ('02','SUV','7')")
     db.cursor().execute(f"INSERT INTO type (tid,name,cid) VALUES ('03','MPV','7')")
 
-    # my = Employee("my")
-    # my.set_password('123')
-    # db.cursor().execute(
-    #     f"INSERT INTO user (user_id, role_id, username, password) VALUES (0,4, '{my.username}', '{my.password}')")
-
-    # mei = Employee(104900)
-    # mei.set_password('12345')
-    # db.cursor().execute(
-    #     f"INSERT INTO user (user_id,username, password) VALUES (104900,'{mei.username}', '{mei.password}')")
-    #
-    # xy = Employee("徐勇")
-    # xy.set_password('12345')
-    # db.cursor().execute(
-    #     f"INSERT INTO user (user_id, role_id, username, password) VALUES (100194,4, '{xy.username}', '{xy.password}')")
-    #
-    # wy = Employee("汪洋")
-    # wy.set_password('12345')
-    # db.cursor().execute(
-    #     f"INSERT INTO user (user_id, role_id, username, password) VALUES (100342,4, '{wy.username}', '{wy.password}')")
-    #
-    # zp = Employee("赵攀")
-    # zp.set_password('12345')
-    # db.cursor().execute(
-    #     f"INSERT INTO user (user_id, role_id, username, password) VALUES (104897,2, '{zp.username}', '{zp.password}')")
-    #
-    # wh = Employee("汪鸿")
-    # wh.set_password('12345')
-    # db.cursor().execute(
-    #     f"INSERT INTO user (user_id, role_id, username, password) VALUES (104970,2, '{wh.username}', '{wh.password}')")
-    #
-    # fq = Employee("冯倩")
-    # fq.set_password('12345')
-    # db.cursor().execute(
-    #     f"INSERT INTO user (user_id, role_id, username, password) VALUES (104971,2, '{fq.username}', '{fq.password}')")
+    mei = Employee(104900)
+    mei.set_password('12345')
+    db.cursor().execute(
+        f"INSERT INTO user (user_id,username, password) VALUES (104900,'梅煜', '{mei.password}')")
 
     # 角色表
     db.cursor().execute("INSERT INTO role VALUES (8,'God', '上帝')")

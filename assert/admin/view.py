@@ -23,10 +23,6 @@ class DeleteIn(TokenIn):
     rowid = String(required=True)
 
 
-# def get_all_employers_by_departments():
-#     db.just_exe('select ')
-
-
 def get_accurate_file(path, pattern):
     result = []
     for root, dirs, files in os.walk(path):
@@ -80,9 +76,9 @@ async def get_all_users(data):
             for user in users:
                 if user[2] not in departments:
                     departments.append(user[2])
-                    results[user[2]] = [{"user_id": user[0], "username": user[1], "comment": user[3]},]
+                    results[user[2]] = [{"user_id": user[0], "username": user[1], "comment": user[3]}, ]
                 else:
-                    results[user[2]].append({"user_id": user[0], "username": user[1], "comment": user[3]},)
+                    results[user[2]].append({"user_id": user[0], "username": user[1], "comment": user[3]}, )
             print(results)
             return render_template("admin_employers.html", tables=results, curr_user=curr_user)
     return json.dumps({"402": "你没有权限！"}, ensure_ascii=False)
