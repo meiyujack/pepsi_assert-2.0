@@ -91,7 +91,7 @@ async def get_all_asserts_by_department(data):
     curr_user = await Employee.get_user_by_token(token)
     privileges = await curr_user.get_privileges(token)
     files = get_accurate_file("download/", 'download/public_*')
-    if len(privileges) == 4:
+    if len(privileges) in (4,5):
         if not files:
             return '暂无人员添加公共资产信息'
         else:
@@ -236,7 +236,7 @@ async def get_all_asserts_by_personal(data):
                             table.append(row)
                     result[user] = table
             return render_template('admin_private.html', tables=result, curr_user=curr_user)
-    if rid == 4:
+    if rid in (4,8):
         users = await db.select_db('user', 'username')
         result = {}
         num = 0
