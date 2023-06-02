@@ -113,6 +113,7 @@ def init_data():
     #     f"INSERT INTO user (user_id, role_id, username, password) VALUES (104971,2, '{fq.username}', '{fq.password}')")
 
     # 角色表
+    db.cursor().execute("INSERT INTO role VALUES (8,'God', '上帝')")
     db.cursor().execute("INSERT INTO role VALUES (4,'Administrator', '超级管理员')")
     db.cursor().execute("INSERT INTO role VALUES (2,'Moderator', '协管员')")
     db.cursor().execute("INSERT INTO role VALUES (1,'User', '普通用户')")
@@ -122,8 +123,15 @@ def init_data():
     db.cursor().execute("INSERT INTO permission VALUES (2,'create', '增加')")
     db.cursor().execute("INSERT INTO permission VALUES (3,'download', '下载')")
     db.cursor().execute("INSERT INTO permission VALUES (4,'query', '查看')")
+    db.cursor().execute("INSERT INTO permission VALUES (5,'find', '看人')")
 
     # 角色权限表
+    db.cursor().execute("INSERT INTO role_permission (role_id,permission_id) VALUES (8,1)")
+    db.cursor().execute("INSERT INTO role_permission (role_id,permission_id) VALUES (8,2)")
+    db.cursor().execute("INSERT INTO role_permission (role_id,permission_id) VALUES (8,3)")
+    db.cursor().execute("INSERT INTO role_permission (role_id,permission_id) VALUES (8,4)")
+    db.cursor().execute("INSERT INTO role_permission (role_id,permission_id) VALUES (8,5)")
+
     db.cursor().execute("INSERT INTO role_permission (role_id,permission_id) VALUES (4,1)")
     db.cursor().execute("INSERT INTO role_permission (role_id,permission_id) VALUES (4,2)")
     db.cursor().execute("INSERT INTO role_permission (role_id,permission_id) VALUES (4,3)")

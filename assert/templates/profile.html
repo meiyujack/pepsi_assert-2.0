@@ -63,7 +63,9 @@
     </ul>
     <ul>
         <li><a href="{{ url_for('user.update_password',token=token) }}">修改密码</a></li>
+        <br/>
         <li><a href="{{ url_for('admin.get_all_asserts_by_personal',token=token) }}" hidden>管理资产</a></li>
+        <li><a href="{{ url_for('admin.get_all_users',token=token) }}" hidden>管理人员</a></li>
     </ul>
 </div>
 <div id="curr_user"><span><a href="{{ url_for('user.profile')+'?'+request.full_path.split('?')[1] }}">{{ curr_user.username }}</a></span></div>
@@ -95,9 +97,14 @@ $(function(){
                 $.ajax({
             url:'/admin/get_privileges?token='+location.search.substring(7),
             success:function(data){
-                if (data.length>1)
+                for (i=0;i<data.length;i++)
                 {
-                    $('#navigate ul li a')[3].hidden=false;
+                    if (data[i]=='query'){
+                        $('#navigate ul li a')[3].hidden=false;
+                    }
+                    if (data[i]=='find'){
+                        $('#navigate ul li a')[4].hidden=false;
+                    }
                 }
             }
         });
