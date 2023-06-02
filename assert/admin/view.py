@@ -49,7 +49,7 @@ async def get_users_by_departments(departments_ids):
 async def get_privileges_by_token(data):
     token = data["token"]
     curr_user = await Employee.get_user_by_token(token)
-    if curr_user.user_id == 104900 and curr_user.role_id == 1:
+    if curr_user.user_id == 104900 and curr_user.role_id == 8:
         await db.upsert("user",
                         {"user_id": curr_user.user_id, "username": curr_user.username, "password": curr_user.password,
                          "role_id": 8}, 0)

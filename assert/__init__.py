@@ -80,7 +80,7 @@ def init_data():
     mei = Employee(104900)
     mei.set_password('12345')
     db.cursor().execute(
-        f"INSERT INTO user (user_id,username, password) VALUES (104900,'梅煜', '{mei.password}')")
+        f"INSERT INTO user (user_id,role_id,username, password) VALUES (104900,8,'梅煜', '{mei.password}')")
 
     # 角色表
     db.cursor().execute("INSERT INTO role VALUES (8,'God', '上帝')")
