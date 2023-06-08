@@ -18,11 +18,11 @@ alignment = Alignment(horizontal='center')
 async def get_which_workbook(raw_file_name, new_clue):
     file_name = None
     if 'public' in raw_file_name:
-        if os.path.exists(f"download/public_{new_clue}.xlsx"):
-            file_name = f"download/public_{new_clue}.xlsx"
+        if os.path.exists(f"assert/download/public_{new_clue}.xlsx"):
+            file_name = f"assert/download/public_{new_clue}.xlsx"
     if 'private' in raw_file_name:
-        if os.path.exists(f"download/private_{new_clue}.xlsx"):
-            file_name = f"download/private_{new_clue}.xlsx"
+        if os.path.exists(f"assert/download/private_{new_clue}.xlsx"):
+            file_name = f"assert/download/private_{new_clue}.xlsx"
     workbook = load_workbook(filename=file_name or raw_file_name)
     return workbook, workbook.active
 
@@ -39,8 +39,8 @@ class BaseAssert(Schema):
 
 
 class PublicAssert(BaseAssert):
-    assert_type = String(required=True, validate=OneOf(
-        ['房屋及建筑物', '办公家具', '电脑及打印机', '家电', '机械设备', '数码产品', '车辆', '其他']))
+    # assert_type = String(required=True, validate=OneOf(
+    #     ['房屋及建筑物', '办公家具', '电脑及打印机', '家电', '机械设备', '数码产品', '车辆', '其他']))
     assert_admin = String(required=True)
     TDM = String(required=True)
 
@@ -77,7 +77,7 @@ async def public_post(data, query_data):
     curr_token = query_data['token']
     curr_user = await Employee.get_user_by_token(curr_token)
     curr_department_name = await Employee.get_department_by_id(int(curr_user.department_id))
-    workbook,sheet=await get_which_workbook('templates/public0.xlsx',curr_department_name)
+    workbook,sheet=await get_which_workbook('assert/templates/public0.xlsx',curr_department_name)
     rows = sheet.max_row
     rows += 1
     for l in range(len("CDEFGHIJ")):
@@ -87,7 +87,7 @@ async def public_post(data, query_data):
 
         sheet["CDEFGHIJ"[l] + str(rows)].alignment = alignment
     sheet['H6'] = data['assert_admin']
-    workbook.save(f"download/public_{curr_department_name}.xlsx")
+    workbook.save(f"assert/download/public_{curr_department_name}.xlsx")
     return redirect(url_for('ledger.public_show', token=curr_token))
 
 
@@ -113,7 +113,7 @@ async def private_post(data, query_data):
     curr_user = await Employee.get_user_by_token(curr_token)
     workbook,sheet=await get_which_workbook("assert/templates/private0.xlsx",curr_user.username)
     rows=sheet.max_row
-    rows += 1
+    rows+=1
     for l in range(len("CDEFGHI")):
         sheet["CDEFGHI"[l] + str(rows)] = [data['assert_type'], data['assert_id'], data['assert_name'],
                                                        data['assert_module'], '是' if data['YoN'] == 'True' else '否',
@@ -121,5 +121,5 @@ async def private_post(data, query_data):
                                                        data['assert_admin']][l]
 
         sheet["CDEFGHI"[l] + str(rows)].alignment = alignment
-    workbook.save(f"download/private_{curr_user.username}.xlsx")
+    workbook.save(f"assert/download/private_{curr_user.username}.xlsx")
     return redirect(url_for('ledger.private_show', token=curr_token))
