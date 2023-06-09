@@ -4,9 +4,9 @@ import re
 from . import admin
 from ..employee import db, Employee
 from ..user.view import TokenIn
+from ..ledger.view import get_which_workbook
 from auth import WebSecurity
 
-from apiflask.schemas import Schema
 from apiflask.fields import List, Float, String
 from flask import send_file, json, render_template
 from openpyxl import load_workbook
@@ -70,16 +70,15 @@ async def get_all_users(data):
     for privilege in privileges:
         if 'find' in privilege:
             users = await db.just_exe(
-                'SELECT u.user_id,u.username,d.department_name,r.comment from "user" u join department d ,"role" r on u.department_id =d.department_id and u.role_id =r.role_id ;')
+                'SELECT u.user_id,u.username,d.department_name,r.role_id,r.comment from "user" u join department d ,"role" r on u.department_id =d.department_id and u.role_id =r.role_id ;')
             departments = []
             results = {}
             for user in users:
                 if user[2] not in departments:
                     departments.append(user[2])
-                    results[user[2]] = [{"user_id": user[0], "username": user[1], "comment": user[3]}, ]
+                    results[user[2]] = [{"user_id": user[0], "username": user[1],"rname":user[4], "rid": user[3]}, ]
                 else:
-                    results[user[2]].append({"user_id": user[0], "username": user[1], "comment": user[3]}, )
-            print(results)
+                    results[user[2]].append({"user_id": user[0], "username": user[1],"rname":user[4], "rid": user[3]}, )
             return render_template("admin_employers.html", tables=results, curr_user=curr_user)
     return json.dumps({"402": "你没有权限！"}, ensure_ascii=False)
 
@@ -90,7 +89,7 @@ async def get_all_asserts_by_department(data):
     token = data["token"]
     curr_user = await Employee.get_user_by_token(token)
     privileges = await curr_user.get_privileges(token)
-    files = get_accurate_file("download/", 'download/public_*')
+    files = get_accurate_file("assert/download/", 'assert/download/public_*')
     if len(privileges) in (4,5):
         if not files:
             return '暂无人员添加公共资产信息'
@@ -104,14 +103,14 @@ async def get_all_asserts_by_department(data):
                                            values_only=True):
                     if None not in row:
                         table.append(row)
-                result[re.match('^download/public_(.*).xlsx', i).group(1)] = table
+                result[re.match('^assert/download/public_(.*).xlsx', i).group(1)] = table
             return render_template('admin_public.html', tables=result, curr_user=curr_user)
     else:
         for privilege in privileges:
             if 'query' in privilege[0]:
                 if curr_user.username == '汪鸿':
-                    if os.path.exists('download/public_生产部.xlsx'):
-                        workbook = load_workbook('download/public_生产部.xlsx')
+                    if os.path.exists('assert/download/public_生产部.xlsx'):
+                        workbook = load_workbook('assert/download/public_生产部.xlsx')
                         sheet = workbook.active
                         table = []
                         for row in sheet.iter_rows(min_row=8, max_row=sheet.max_row, min_col=3,
@@ -126,12 +125,12 @@ async def get_all_asserts_by_department(data):
                     result = {}
                     num = 0
                     for file in files:
-                        if not os.path.exists(f'download/public_{file}.xlsx'):
+                        if not os.path.exists(f'assert/download/public_{file}.xlsx'):
                             num += 1
                             if num == len(files):
                                 return '暂无人员添加相关部门公共资产信息'
                         else:
-                            workbook = load_workbook(f'download/public_{file}.xlsx')
+                            workbook = load_workbook(f'assert/download/public_{file}.xlsx')
                             sheet = workbook.active
                             table = []
                             for row in sheet.iter_rows(min_row=8, max_row=sheet.max_row, min_col=3,
@@ -147,12 +146,12 @@ async def get_all_asserts_by_department(data):
                     result = {}
                     num = 0
                     for file in files:
-                        if not os.path.exists(f'download/public_{file}.xlsx'):
+                        if not os.path.exists(f'assert/download/public_{file}.xlsx'):
                             num += 1
                             if num == len(files):
                                 return '暂无人员添加相关部门公共资产信息'
                         else:
-                            workbook = load_workbook(f'download/public_{file}.xlsx')
+                            workbook = load_workbook(f'assert/download/public_{file}.xlsx')
                             sheet = workbook.active
                             table = []
                             for row in sheet.iter_rows(min_row=8, max_row=sheet.max_row, min_col=3,
@@ -181,12 +180,12 @@ async def get_all_asserts_by_personal(data):
             result = {}
             num = 0
             for user in users:
-                if not os.path.exists(f'download/private_{user}.xlsx'):
+                if not os.path.exists(f'assert/download/private_{user}.xlsx'):
                     num += 1
                     if num == len(users):
                         return '暂无人员添加个人资产信息'
                 else:
-                    workbook = load_workbook(f'download/private_{user}.xlsx')
+                    workbook = load_workbook(f'assert/download/private_{user}.xlsx')
                     sheet = workbook.active
                     table = []
                     for row in sheet.iter_rows(min_row=8, max_row=sheet.max_row, min_col=3,
@@ -201,12 +200,12 @@ async def get_all_asserts_by_personal(data):
             result = {}
             num = 0
             for user in users:
-                if not os.path.exists(f'download/private_{user}.xlsx'):
+                if not os.path.exists(f'assert/download/private_{user}.xlsx'):
                     num += 1
                     if num == len(users):
                         return '暂无人员添加个人资产信息'
                 else:
-                    workbook = load_workbook(f'download/private_{user}.xlsx')
+                    workbook = load_workbook(f'assert/download/private_{user}.xlsx')
                     sheet = workbook.active
                     table = []
                     for row in sheet.iter_rows(min_row=8, max_row=sheet.max_row, min_col=3,
@@ -221,12 +220,12 @@ async def get_all_asserts_by_personal(data):
             result = {}
             num = 0
             for user in users:
-                if not os.path.exists(f'download/private_{user}.xlsx'):
+                if not os.path.exists(f'assert/download/private_{user}.xlsx'):
                     num += 1
                     if num == len(users):
                         return '暂无人员添加个人资产信息'
                 else:
-                    workbook = load_workbook(f'download/private_{user}.xlsx')
+                    workbook = load_workbook(f'assert/download/private_{user}.xlsx')
                     sheet = workbook.active
                     table = []
                     for row in sheet.iter_rows(min_row=8, max_row=sheet.max_row, min_col=3,
@@ -241,12 +240,12 @@ async def get_all_asserts_by_personal(data):
         result = {}
         num = 0
         for user in users:
-            if not os.path.exists(f'download/private_{user[0]}.xlsx'):
+            if not os.path.exists(f'assert/download/private_{user[0]}.xlsx'):
                 num += 1
                 if num == len(users):
                     return '暂无人员添加个人资产信息'
             else:
-                workbook = load_workbook(f'download/private_{user[0]}.xlsx')
+                workbook = load_workbook(f'assert/download/private_{user[0]}.xlsx')
                 sheet = workbook.active
                 table = []
                 for row in sheet.iter_rows(min_row=8, max_row=sheet.max_row, min_col=3,
@@ -267,9 +266,17 @@ async def download(data):
     privileges = await curr_user.get_privileges(token)
     for privilege in privileges:
         if 'download' in privilege[0]:
-            if os.path.exists(f'download/public_{department}.xlsx'):
+            if os.path.exists(f'assert/download/public_{department}.xlsx'):
+                wb,sheet=await get_which_workbook(f'assert/download/public_{department}.xlsx',department)
+                for n in range(sheet.max_row-9):
+                    sheet[f'B{9+n}']=str(n+1)
+                wb.save(f'assert/download/public_{department}.xlsx')
                 return send_file(path_or_file=f'download/public_{department}.xlsx')
-            if os.path.exists(f'download/private_{department}.xlsx'):
+            if os.path.exists(f'assert/download/private_{department}.xlsx'):
+                wb, sheet = await get_which_workbook(f'assert/download/private_{department}.xlsx', department)
+                for n in range(sheet.max_row-9):
+                    sheet[f'B{10 + n}'] = str(n + 1)
+                wb.save(f'assert/download/private_{department}.xlsx')
                 return send_file(path_or_file=f'download/private_{department}.xlsx')
     else:
         return json.dumps({"402": "你没有权限！"}, ensure_ascii=False)

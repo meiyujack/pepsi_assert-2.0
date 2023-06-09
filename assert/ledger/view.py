@@ -1,10 +1,10 @@
 import os
 
 from . import ledger
-from ..employee import Employee,secure
+from ..employee import Employee, secure
 from ..user.view import TokenIn
 
-from flask import render_template, url_for, redirect,flash
+from flask import render_template, url_for, redirect, flash
 from openpyxl import load_workbook
 from openpyxl.styles import Alignment
 
@@ -55,7 +55,7 @@ async def public_show(query_data):
         curr_department_name = await Employee.get_department_by_id(int(curr_user.department_id))
         privileges = await curr_user.get_privileges(curr_token)
         if len(privileges) > 1:
-            return redirect(url_for('admin.get_all_asserts_by_department',token=curr_token))
+            return redirect(url_for('admin.get_all_asserts_by_department', token=curr_token))
         else:
             # workbook, sheet = await get_which_workbook('templates/public0.xlsx', curr_department_name)
             # table = []
@@ -69,7 +69,6 @@ async def public_show(query_data):
         return ''
 
 
-
 @ledger.post('/public')
 @ledger.input(PublicAssert, location='form')
 @ledger.input(TokenIn, location='query')
@@ -77,13 +76,14 @@ async def public_post(data, query_data):
     curr_token = query_data['token']
     curr_user = await Employee.get_user_by_token(curr_token)
     curr_department_name = await Employee.get_department_by_id(int(curr_user.department_id))
-    workbook,sheet=await get_which_workbook('assert/templates/public0.xlsx',curr_department_name)
+    workbook, sheet = await get_which_workbook('assert/templates/public0.xlsx', curr_department_name)
     rows = sheet.max_row
     rows += 1
     for l in range(len("CDEFGHIJ")):
         sheet["CDEFGHIJ"[l] + str(rows)] = [data['assert_type'], data['assert_id'], data['assert_name'],
-                                                    data['assert_module'], '是' if data['YoN'] == 'True' else '否', data['bought_date'],
-                                                    data['assert_admin'], data['TDM']][l]
+                                            data['assert_module'], '是' if data['YoN'] == 'True' else '否',
+                                            data['bought_date'],
+                                            data['assert_admin'], data['TDM']][l]
 
         sheet["CDEFGHIJ"[l] + str(rows)].alignment = alignment
     sheet['H6'] = data['assert_admin']
@@ -96,7 +96,7 @@ async def public_post(data, query_data):
 async def private_show(query_data):
     curr_token = query_data['token']
     curr_user = await Employee.get_user_by_token(curr_token)
-    workbook,sheet=await get_which_workbook('assert/templates/private0.xlsx',curr_user.username)
+    workbook, sheet = await get_which_workbook('assert/templates/private0.xlsx', curr_user.username)
     table = []
     for row in sheet.iter_rows(min_row=8, max_row=sheet.max_row, min_col=3, max_col=sheet.max_column, values_only=True):
         if None not in row:
@@ -111,15 +111,18 @@ async def private_show(query_data):
 async def private_post(data, query_data):
     curr_token = query_data['token']
     curr_user = await Employee.get_user_by_token(curr_token)
-    workbook,sheet=await get_which_workbook("assert/templates/private0.xlsx",curr_user.username)
-    rows=sheet.max_row
-    rows+=1
+    workbook, sheet = await get_which_workbook("assert/templates/private0.xlsx", curr_user.username)
+    rows = sheet.max_row
+    rows += 1
     for l in range(len("CDEFGHI")):
         sheet["CDEFGHI"[l] + str(rows)] = [data['assert_type'], data['assert_id'], data['assert_name'],
-                                                       data['assert_module'], '是' if data['YoN'] == 'True' else '否',
-                                                       data['bought_date'],
-                                                       data['assert_admin']][l]
+                                           data['assert_module'], '是' if data['YoN'] == 'True' else '否',
+                                           data['bought_date'],
+                                           data['assert_admin']][l]
 
         sheet["CDEFGHI"[l] + str(rows)].alignment = alignment
+    print(sheet['D4'].value, type(sheet['D4'].value))
+    sheet['D4'] = sheet['D4'].value.replace('个人', curr_user.username)
+    sheet['H6'] = data['assert_admin']
     workbook.save(f"assert/download/private_{curr_user.username}.xlsx")
     return redirect(url_for('ledger.private_show', token=curr_token))
