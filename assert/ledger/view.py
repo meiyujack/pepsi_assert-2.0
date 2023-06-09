@@ -7,6 +7,7 @@ from ..user.view import TokenIn
 from flask import render_template, url_for, redirect, flash
 from openpyxl import load_workbook
 from openpyxl.styles import Alignment
+from openpyxl.drawing.image import Image
 
 from apiflask import Schema
 from apiflask.fields import String

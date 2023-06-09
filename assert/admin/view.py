@@ -269,7 +269,7 @@ async def download(data):
             if os.path.exists(f'assert/download/public_{department}.xlsx'):
                 wb,sheet=await get_which_workbook(f'assert/download/public_{department}.xlsx',department)
                 for n in range(sheet.max_row-9):
-                    sheet[f'B{9+n}']=str(n+1)
+                    sheet[f'B{10+n}']=str(n+1)
                 wb.save(f'assert/download/public_{department}.xlsx')
                 return send_file(path_or_file=f'download/public_{department}.xlsx')
             if os.path.exists(f'assert/download/private_{department}.xlsx'):
