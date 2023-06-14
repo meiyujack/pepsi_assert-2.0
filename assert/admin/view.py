@@ -8,7 +8,7 @@ from ..ledger.view import get_which_workbook
 from auth import WebSecurity
 
 from apiflask.fields import List, Float, String
-from flask import send_file, json, render_template
+from flask import send_file, json, render_template, flash, url_for, redirect
 from openpyxl import load_workbook
 
 secure = WebSecurity('ocefjVp_pL4Iens21FTjsA')
@@ -18,9 +18,9 @@ class DownloadIn(TokenIn):
     department = String(required=True)
 
 
-class DeleteIn(TokenIn):
-    username = String(required=True)
-    rowid = String(required=True)
+class AlterIn(TokenIn):
+    uid = String(required=True)
+    rid = String(required=True)
 
 
 def get_accurate_file(path, pattern):
@@ -73,12 +73,21 @@ async def get_all_users(data):
                 'SELECT u.user_id,u.username,d.department_name,r.role_id,r.comment from "user" u join department d ,"role" r on u.department_id =d.department_id and u.role_id =r.role_id ;')
             departments = []
             results = {}
-            for user in users:
-                if user[2] not in departments:
-                    departments.append(user[2])
-                    results[user[2]] = [{"user_id": user[0], "username": user[1],"rname":user[4], "rid": user[3]}, ]
-                else:
-                    results[user[2]].append({"user_id": user[0], "username": user[1],"rname":user[4], "rid": user[3]}, )
+            if users:
+                for user in users:
+                    if user[2] not in departments:
+                        departments.append(user[2])
+                        results[user[2]] = [
+                            {"user_id": user[0], "username": user[1], "rname": user[4], "rid": user[3]}, ]
+                    else:
+                        results[user[2]].append(
+                            {"user_id": user[0], "username": user[1], "rname": user[4], "rid": user[3]}, )
+            else:
+                results["未选定部门"] = []
+                users = await db.select_db("user")
+                for user in users:
+                    results["未选定部门"].append({"user_id": user[0], "username": user[2]})
+
             return render_template("admin_employers.html", tables=results, curr_user=curr_user)
     return json.dumps({"402": "你没有权限！"}, ensure_ascii=False)
 
@@ -90,7 +99,7 @@ async def get_all_asserts_by_department(data):
     curr_user = await Employee.get_user_by_token(token)
     privileges = await curr_user.get_privileges(token)
     files = get_accurate_file("assert/download/", 'assert/download/public_*')
-    if len(privileges) in (4,5):
+    if len(privileges) in (4, 5):
         if not files:
             return '暂无人员添加公共资产信息'
         else:
@@ -235,7 +244,7 @@ async def get_all_asserts_by_personal(data):
                             table.append(row)
                     result[user] = table
             return render_template('admin_private.html', tables=result, curr_user=curr_user)
-    if rid in (4,8):
+    if rid in (4, 8):
         users = await db.select_db('user', 'username')
         result = {}
         num = 0
@@ -267,14 +276,14 @@ async def download(data):
     for privilege in privileges:
         if 'download' in privilege[0]:
             if os.path.exists(f'assert/download/public_{department}.xlsx'):
-                wb,sheet=await get_which_workbook(f'assert/download/public_{department}.xlsx',department)
-                for n in range(sheet.max_row-9):
-                    sheet[f'B{10+n}']=str(n+1)
+                wb, sheet = await get_which_workbook(f'assert/download/public_{department}.xlsx', department)
+                for n in range(sheet.max_row - 9):
+                    sheet[f'B{10 + n}'] = str(n + 1)
                 wb.save(f'assert/download/public_{department}.xlsx')
                 return send_file(path_or_file=f'download/public_{department}.xlsx')
             if os.path.exists(f'assert/download/private_{department}.xlsx'):
                 wb, sheet = await get_which_workbook(f'assert/download/private_{department}.xlsx', department)
-                for n in range(sheet.max_row-9):
+                for n in range(sheet.max_row - 9):
                     sheet[f'B{10 + n}'] = str(n + 1)
                 wb.save(f'assert/download/private_{department}.xlsx')
                 return send_file(path_or_file=f'download/private_{department}.xlsx')
@@ -282,21 +291,41 @@ async def download(data):
         return json.dumps({"402": "你没有权限！"}, ensure_ascii=False)
 
 
-@admin.get('/delete')
-@admin.input(DeleteIn, location='query')
-async def delete(data):
+@admin.get('/alter_privilege')
+@admin.input(AlterIn, location='query')
+async def alter_privilege(data):
     token = data["token"]
-    username = data["username"]
-    rowid = data["rowid"]
     curr_user = await Employee.get_user_by_token(token)
-    privileges = await curr_user.get_privileges(token)
-    for privilege in privileges:
-        if 'delete' in privilege[0]:
-            if os.path.exists(f'download/private_{username}.xlsx'):
-                workbook = load_workbook(f'download/private_{username}.xlsx')
-                sheet = workbook.active
-                for l in range(len("CDEFGHI")):
-                    sheet["CDEFGHI"[l] + str(rowid)] = ['', '', '', '', '', '', ''][l]
-                workbook.save(f"download/private_{username}.xlsx")
-    else:
-        return json.dumps({"402": "你没有权限！"}, ensure_ascii=False)
+    wanna_uid = data["uid"]
+    wanna_rid = data["rid"]
+    rid = secure.get_info_by_token(token, 'rid')
+    uname = await db.select_db("user", "username", user_id=wanna_uid)
+    uname = uname[0][0]
+    rname = await db.select_db("role", "comment", role_id=wanna_rid)
+    rname = rname[0][0]
+    if rid == 8:
+        msg = await db.upsert("user", {"user_id": wanna_uid, "role_id": wanna_rid, "username": curr_user.username,
+                                       "password": curr_user.password, }, 0)
+        if not msg:
+            flash(f"成功修改{uname}的角色权限为{rname}")
+            return redirect(url_for('admin.get_all_users', token=token))
+        return msg
+    return flash(f"无权限")
+# @admin.get('/delete')
+# @admin.input(DeleteIn, location='query')
+# async def delete(data):
+#     token = data["token"]
+#     username = data["username"]
+#     rowid = data["rowid"]
+#     curr_user = await Employee.get_user_by_token(token)
+#     privileges = await curr_user.get_privileges(token)
+#     for privilege in privileges:
+#         if 'delete' in privilege[0]:
+#             if os.path.exists(f'download/private_{username}.xlsx'):
+#                 workbook = load_workbook(f'download/private_{username}.xlsx')
+#                 sheet = workbook.active
+#                 for l in range(len("CDEFGHI")):
+#                     sheet["CDEFGHI"[l] + str(rowid)] = ['', '', '', '', '', '', ''][l]
+#                 workbook.save(f"download/private_{username}.xlsx")
+#     else:
+#         return json.dumps({"402": "你没有权限！"}, ensure_ascii=False)

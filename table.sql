@@ -25,7 +25,7 @@ DROP TABLE IF EXISTS user;
 CREATE TABLE user(
     user_id INTEGER PRIMARY KEY,
     role_id INTEGER DEFAULT 1,
-    username TEXT NOT NULL unique,
+    username TEXT NOT NULL,
     password TEXT NOT NULL,
     create_time TEXT default (datetime('now','localtime')),
     gender INTEGER,

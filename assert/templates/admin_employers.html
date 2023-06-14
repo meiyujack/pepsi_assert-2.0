@@ -20,6 +20,11 @@
     #download{
         margin-left:800px;
     }
+    #alter{
+        margin-top:-200px;
+        margin-right:888px;
+        line-height:41px;
+    }
 </style>
 {% endblock %}
 {% block content %}
@@ -32,17 +37,74 @@
         {%- for e in u %}
         <tr>
             {%- for k,v in e.items() %}
-            <td>{{v}}</td>
+                {% if v is number and v <10 %}
+                    <td><input type="text" value="{{v}}" style="width:15px;"></td>
+                {% else %}
+                    <td>{{v}}</td>
+                {% endif %}
             {%- endfor %}
         </tr>
         {%- endfor %}
     </table>
-<!--    <table>-->
-<!--        <tr>-->
-<!--            <td>修改</td>-->
-<!--        </tr>-->
-<!--    </table>-->
     <br>
     {%- endfor %}
+    <div id="alter"></div>
 </div>
+<script type="text/javascript">
+    tables=[];
+    rows=[];
+    vv=[];
+    tbodys=document.getElementsByTagName('tbody');
+    for (i=0;i<tbodys.length;i++)
+    {
+        rows[i]=tbodys[i].childElementCount;
+        tables[i]=document.createElement("table");
+    }
+
+    br=document.createElement("br");
+    for (t=0;t<tables.length;t++)
+    {
+        for (r=0;r<rows[t];r++)
+        {
+            rn=tables[t].insertRow(r);
+            cn=rn.insertCell(0);
+            cn.innerHTML="<a>修改权限</a>";
+        }
+    }
+    d=document.getElementById("alter");
+    for (i=0;i<tables.length;i++)
+    {
+        d.appendChild(tables[i]);
+    }
+    d.style.float="right";
+    for (i=0;i<tables.length-1;i++)
+    {
+        tables[i].insertAdjacentElement("afterend",br);
+    }
+    r=$("tr")
+    v=$("input")
+    a=$("#table a")
+    uids=[];
+    for (i=0;i<r.length/2;i++)
+    {
+        uids[i]=r[i].cells[0].textContent;
+        v[i].setAttribute('id',uids[i]);
+    }
+    for (i=0;i<a.length;i++)
+    {
+        a[i].onclick=getV;
+    }
+
+    function getV(){
+        for (i=0;i<v.length;i++){
+            //if (vv.length==0){
+                vv[i]=$('#'+v[i].id)[0].value;
+            //}
+            a[i].setAttribute('href','/admin/alter_privilege'+window.location.search+'&uid='+uids[i]+'&rid='+vv[i]);
+        }
+
+    }
+
+
+</script>
 {% endblock %}
