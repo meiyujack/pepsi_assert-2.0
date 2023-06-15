@@ -304,28 +304,29 @@ async def alter_privilege(data):
     rname = await db.select_db("role", "comment", role_id=wanna_rid)
     rname = rname[0][0]
     if rid == 8:
-        msg = await db.upsert("user", {"user_id": wanna_uid, "role_id": wanna_rid, "username": curr_user.username,
-                                       "password": curr_user.password, }, 0)
+        msg = await db.just_exe(f"update user set role_id={wanna_rid} where user_id={wanna_uid};")
         if not msg:
             flash(f"成功修改{uname}的角色权限为{rname}")
             return redirect(url_for('admin.get_all_users', token=token))
         return msg
     return flash(f"无权限")
-# @admin.get('/delete')
-# @admin.input(DeleteIn, location='query')
-# async def delete(data):
-#     token = data["token"]
-#     username = data["username"]
-#     rowid = data["rowid"]
-#     curr_user = await Employee.get_user_by_token(token)
-#     privileges = await curr_user.get_privileges(token)
-#     for privilege in privileges:
-#         if 'delete' in privilege[0]:
-#             if os.path.exists(f'download/private_{username}.xlsx'):
-#                 workbook = load_workbook(f'download/private_{username}.xlsx')
-#                 sheet = workbook.active
-#                 for l in range(len("CDEFGHI")):
-#                     sheet["CDEFGHI"[l] + str(rowid)] = ['', '', '', '', '', '', ''][l]
-#                 workbook.save(f"download/private_{username}.xlsx")
-#     else:
-#         return json.dumps({"402": "你没有权限！"}, ensure_ascii=False)
+
+
+@admin.get('/delete')
+@admin.input(TokenIn,location='query')
+async def delete(data):
+    token = data["token"]
+    username = data["username"]
+    rowid = data["rowid"]
+    curr_user = await Employee.get_user_by_token(token)
+    privileges = await curr_user.get_privileges(token)
+    for privilege in privileges:
+        if 'delete' in privilege[0]:
+            if os.path.exists(f'download/private_{username}.xlsx'):
+                workbook = load_workbook(f'download/private_{username}.xlsx')
+                sheet = workbook.active
+                for l in range(len("CDEFGHI")):
+                    sheet["CDEFGHI"[l] + str(rowid)] = ['', '', '', '', '', '', ''][l]
+                workbook.save(f"download/private_{username}.xlsx")
+    else:
+        return json.dumps({"402": "你没有权限！"}, ensure_ascii=False)

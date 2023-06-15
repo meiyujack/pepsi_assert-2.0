@@ -68,6 +68,7 @@ class AsyncSqlite(Database):
 
         try:
             async with self.conn.execute(sql) as cursor:
+                await self.conn.commit()
                 return await cursor.fetchall()
         except self.server.Error as ex:
             return f"Error:{ex}"
