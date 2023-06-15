@@ -90,6 +90,7 @@ async def public_post(data, query_data):
     sheet['D4'] = curr_department_name+sheet['D4'].value
     sheet['H6'] = data['assert_admin']
     workbook.save(f"assert/download/public_{curr_department_name}.xlsx")
+    flash("已添加")
     return redirect(url_for('ledger.public_show', token=curr_token))
 
 
