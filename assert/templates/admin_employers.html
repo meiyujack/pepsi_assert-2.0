@@ -32,7 +32,7 @@
 <div id="curr_user"><span><a href="{{ url_for('user.profile')+'?'+request.full_path.split('?')[1] }}">{{ curr_user.username }}</a></span></div>
 <div id="table">
  {%- for d,u in tables.items() %}
-    <span>{{d}}</span>
+    <span id="d">{{d}}</span>
     <table cellpadding="10">
         {%- for e in u %}
         <tr>
@@ -68,7 +68,9 @@
         {
             rn=tables[t].insertRow(r);
             cn=rn.insertCell(0);
-            cn.innerHTML="<a>修改权限</a>";
+            if ($("#d")[0].innerHTML!="未选定部门"){
+                cn.innerHTML="<a>修改权限</a>";
+            }
         }
     }
     d=document.getElementById("alter");
@@ -88,7 +90,9 @@
     for (i=0;i<r.length/2;i++)
     {
         uids[i]=r[i].cells[0].textContent;
-        v[i].setAttribute('id',uids[i]);
+        if(v.length>0){
+            v[i].setAttribute('id',uids[i]);
+        }
     }
     for (i=0;i<a.length;i++)
     {
