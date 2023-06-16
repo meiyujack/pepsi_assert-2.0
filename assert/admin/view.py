@@ -4,7 +4,7 @@ import re
 from . import admin
 from ..employee import db, Employee
 from ..user.view import TokenIn
-from ..ledger.view import get_which_workbook
+from ..ledger.view import get_which_workbook, alignment
 from auth import WebSecurity
 
 from apiflask.fields import List, Float, String
@@ -279,12 +279,14 @@ async def download(data):
                 wb, sheet = await get_which_workbook(f'assert/download/public_{department}.xlsx', department)
                 for n in range(sheet.max_row - 9):
                     sheet[f'B{10 + n}'] = str(n + 1)
+                    sheet[f'B{10 + n}'].alignment = alignment
                 wb.save(f'assert/download/public_{department}.xlsx')
                 return send_file(path_or_file=f'download/public_{department}.xlsx')
             if os.path.exists(f'assert/download/private_{department}.xlsx'):
                 wb, sheet = await get_which_workbook(f'assert/download/private_{department}.xlsx', department)
                 for n in range(sheet.max_row - 9):
                     sheet[f'B{10 + n}'] = str(n + 1)
+                    sheet[f'B{10 + n}'].alignment = alignment
                 wb.save(f'assert/download/private_{department}.xlsx')
                 return send_file(path_or_file=f'download/private_{department}.xlsx')
     else:
@@ -313,7 +315,7 @@ async def alter_privilege(data):
 
 
 @admin.get('/delete')
-@admin.input(TokenIn,location='query')
+@admin.input(TokenIn, location='query')
 async def delete(data):
     token = data["token"]
     username = data["username"]
