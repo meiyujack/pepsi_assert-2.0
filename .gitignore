@@ -131,8 +131,8 @@ dmypy.json
 # PyCharm
 .idea/
 
-# Office
-*.xlsx
+# download
+assert/download/
 
 #sqlite3
 *.db
