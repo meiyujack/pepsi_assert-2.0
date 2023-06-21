@@ -1,3 +1,32 @@
+DROP TABLE IF EXISTS public_assert;
+CREATE TABLE public_assert(
+    aid TEXT PRIMARY KEY,
+    cid INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    model TEXT NOT NULL,
+    is_fixed INTEGER NOT NULL,
+    purchase_date TEXT NOT NULL,
+    manager TEXT NOT NULL,
+    admin_id INTEGER NOT NULL,
+    FOREIGN KEY(cid) REFERENCES category(cid),
+    FOREIGN KEY(admin_id) REFERENCES user(user_id)
+);
+
+DROP TABLE IF EXISTS personal_assert;
+CREATE TABLE personal_assert(
+    aid TEXT PRIMARY KEY,
+    cid INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    model TEXT NOT NULL,
+    is_fixed INTEGER NOT NULL,
+    purchase_date TEXT NOT NULL,
+    admin_id TEXT NOT NULL,
+    personal_id INTEGER NOT NULL,
+    FOREIGN KEY(cid) REFERENCES category(cid),
+    FOREIGN KEY(admin_id) REFERENCES user(user_id)
+    FOREIGN KEY(personal_id) REFERENCES user(user_id)
+);
+
 DROP TABLE IF EXISTS department;
 CREATE TABLE department(
     department_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -7,7 +36,7 @@ CREATE TABLE department(
 
 DROP TABLE IF EXISTS category;
 CREATE TABLE category(
-    cid TEXT PRIMARY KEY,
+    cid INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     comment TEXT
 );
@@ -17,7 +46,7 @@ CREATE TABLE type(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     tid TEXT NOT NULL,
     name TEXT NOT NULL,
-    cid TEXT NOT NULL,
+    cid INTEGER NOT NULL,
     FOREIGN KEY(cid) REFERENCES category(cid)
 );
 

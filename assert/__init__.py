@@ -82,6 +82,18 @@ def init_data():
     db.cursor().execute(
         f"INSERT INTO user (user_id,role_id,username, password) VALUES (104900,8,'梅煜', '{mei.password}')")
 
+    wang=Employee(104970)
+    wang.set_password('123456')
+    db.cursor().execute(f"INSERT INTO user (user_id,role_id,username, password) VALUES (104970,2,'汪鸿','{wang.password}')")
+
+    zhao = Employee(104897)
+    zhao.set_password('123456')
+    db.cursor().execute(f"INSERT INTO user (user_id,role_id,username, password) VALUES (104897,2,'赵攀','{zhao.password}')")
+
+    feng = Employee(104971)
+    feng.set_password('123456')
+    db.cursor().execute(f"INSERT INTO user (user_id,role_id,username, password) VALUES (104971,2,'冯倩','{feng.password}')")
+
     # 角色表
     db.cursor().execute("INSERT INTO role VALUES (8,'God', '上帝')")
     db.cursor().execute("INSERT INTO role VALUES (4,'Administrator', '超级管理员')")

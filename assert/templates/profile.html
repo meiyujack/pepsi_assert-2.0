@@ -59,7 +59,7 @@
 <div id="navigate">
     <ul>
         <li><a href="{{ url_for('ledger.public_show',token=token) }}">公共资产</a></li>
-        <li><a href="{{ url_for('ledger.private_show',token=token) }}">个人资产</a></li>
+        <li><a href="{{ url_for('ledger.personal_show',token=token) }}">个人资产</a></li>
     </ul>
     <ul>
         <li><a href="{{ url_for('user.update_password',token=token) }}">修改密码</a></li>
