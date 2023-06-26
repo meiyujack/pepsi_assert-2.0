@@ -1,5 +1,7 @@
 import os
 import re
+from markupsafe import Markup
+
 
 from . import admin
 from ..employee import db, Employee
@@ -10,6 +12,7 @@ from auth import WebSecurity
 from apiflask.fields import List, Float, String
 from flask import send_file, json, render_template, flash, url_for, redirect
 from openpyxl import load_workbook
+from openpyxl.worksheet.worksheet import Worksheet
 
 secure = WebSecurity('ocefjVp_pL4Iens21FTjsA')
 
@@ -21,6 +24,10 @@ class DownloadIn(TokenIn):
 class AlterIn(TokenIn):
     uid = String(required=True)
     rid = String(required=True)
+
+
+class DeleteOrUpdate(TokenIn):
+    aid = String(required=True)
 
 
 def get_accurate_file(path, pattern):
@@ -273,7 +280,13 @@ async def get_all_asserts_by_personal(data):
                                            values_only=True):
                     if None not in row:
                         table.append(row)
-                result[user[0]] = table
+                new_table = []
+                new_table.append(table[0].__add__(('操作',)))
+                for t in table[1:]:
+                    new_table.append(t.__add__((Markup(
+                        '<button type="button" name="alter"><a href="">修改</a></button>'), Markup(
+                        f'<button type="button" name="remove"><a href="delete?aid={t[1]}&token={token}")">删除</a></button>'))))
+                result[user[0]] = new_table
         return render_template('admin_personal.html', tables=result, curr_user=curr_user)
 
 
@@ -326,20 +339,33 @@ async def alter_privilege(data):
 
 
 @admin.get('/delete')
-@admin.input(TokenIn, location='query')
+@admin.input(DeleteOrUpdate, location='query')
 async def delete(data):
     token = data["token"]
-    username = data["username"]
-    rowid = data["rowid"]
+    aid = data["aid"]
+    uid = await db.select_db("personal_assert", "personal_id", aid=aid)
+    uid=uid[0][0]
+    uname=await db.select_db("user","username",user_id=uid)
+    uname=uname[0][0]
+    await db.just_exe(f'delete from personal_assert where aid = {aid};')
     curr_user = await Employee.get_user_by_token(token)
     privileges = await curr_user.get_privileges(token)
     for privilege in privileges:
         if 'delete' in privilege[0]:
-            if os.path.exists(f'download/personal_{username}.xlsx'):
-                workbook = load_workbook(f'download/personal_{username}.xlsx')
-                sheet = workbook.active
-                for l in range(len("CDEFGHI")):
-                    sheet["CDEFGHI"[l] + str(rowid)] = ['', '', '', '', '', '', ''][l]
-                workbook.save(f"download/personal_{username}.xlsx")
+            if os.path.exists(f'assert/download/personal_{uname}.xlsx'):
+                workbook = load_workbook(f'assert/download/personal_{uname}.xlsx')
+                await delete_from_excel(workbook, aid,uname)
+                flash("该行资产删除成功～")
+                return redirect(url_for("admin.get_all_asserts_by_personal",token=token))
     else:
         return json.dumps({"402": "你没有权限！"}, ensure_ascii=False)
+
+
+async def delete_from_excel(workbook, aid,uname):
+    sheet = workbook.active
+    print(sheet.max_row)
+    for r in range(1, sheet.max_row+1):
+        if sheet['D' + str(r)].value == aid:
+            Worksheet.delete_rows(sheet,r)
+            break
+    workbook.save(f'assert/download/personal_{uname}.xlsx')

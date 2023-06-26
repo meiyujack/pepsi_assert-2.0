@@ -21,7 +21,7 @@
         margin-left:800px;
     }
     #alter{
-        margin-top:-250px;
+        margin-top:-385px;
         margin-right:800px;
         line-height:41px;
     }
@@ -61,16 +61,14 @@
         tables[i]=document.createElement("table");
     }
 
-    br=document.createElement("br");
+
     for (t=0;t<tables.length;t++)
     {
         for (r=0;r<rows[t];r++)
         {
             rn=tables[t].insertRow(r);
             cn=rn.insertCell(0);
-            if ($("#d")[0].innerHTML!="未选定部门"){
-                cn.innerHTML="<a>修改权限</a>";
-            }
+            cn.innerHTML="<a>修改权限</a>";
         }
     }
     d=document.getElementById("alter");
@@ -79,8 +77,10 @@
         d.appendChild(tables[i]);
     }
     d.style.float="right";
-    for (i=0;i<tables.length-1;i++)
+    alter=$("#alter table")
+    for (i=0;i<alter.length;i++)
     {
+        br=document.createElement("br");
         tables[i].insertAdjacentElement("afterend",br);
     }
     r=$("tr")

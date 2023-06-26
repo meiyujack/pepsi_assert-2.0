@@ -28,12 +28,13 @@
 <div id="curr_user"><a href="{{ url_for('user.profile')+'?'+request.full_path.split('?')[1] }}">{{ curr_user.username }}</a></div>
 <div id="table">
     {%- for k,v in tables.items() %}
-    <h4>{{k}}</h4><span id="download"><a href="{{url_for('admin.download')+'?'+request.full_path.split('?')[1]+'&department='+k}}">下载</a></span><!--<span id="remove"><a href="{{url_for('admin.delete')+'?'+request.full_path.split('?')[1]+'&department='+k}}">删除</a></span>-->
-    <table cellpadding="10">
+    <h4>{{k}}</h4><span id="download"><a href="{{url_for('admin.download')+'?'+request.full_path.split('?')[1]+'&department='+k}}">下载</a></span>
+    <table cellpadding="10" name="{{k}}">
         {%- for row in v %}
-        <tr id="{{loop.index}}">
+        <tr id="{{loop.index-1}}">
             {%- for value in row %}
-            <td>{{value}}</td>
+                <td>{{value}}</td>
+<!--            <td><input type="text" value="{{value}}" style="width:90px;"></td>-->
             {%- endfor %}
 <!--            <td><button class="{{loop.index}}" onclick="window.location.href='{{url_for('admin.delete')+'?'+request.full_path.split('?')[1]+'&username='+k+'&rowid='+(loop.index+9)|string}}';">删除</button></td>-->
         </tr>
@@ -50,5 +51,14 @@
             $('button.1')[i].hidden=true;
         }
     })
+    h4=$("h4");
+    alters=[];
+    removes=[];
+    for (u=0;u<h4.length;u++)
+    {
+        //users[u]=h4[u].innerHTML;
+        alters[u]=$("button[name='alter']");
+        removes[u]=$("button[name='remove']");
+    }
 </script>
 {% endblock %}

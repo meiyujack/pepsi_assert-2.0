@@ -128,7 +128,8 @@ async def profile_update(data, query_data):
         department_id = data.get("department")
         tel = data.get("tel")
         r = None
-        if gender:
+        print(gender)
+        if gender!='None':
             if gender != curr_user.gender:
                 r = await db.upsert('user', {'user_id': curr_user.user_id, 'username': curr_user.username,
                                              'password': curr_user.password, 'gender': int(gender)}, 0)
