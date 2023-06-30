@@ -34,9 +34,7 @@
         <tr id="{{loop.index-1}}">
             {%- for value in row %}
                 <td>{{value}}</td>
-<!--            <td><input type="text" value="{{value}}" style="width:90px;"></td>-->
             {%- endfor %}
-<!--            <td><button class="{{loop.index}}" onclick="window.location.href='{{url_for('admin.delete')+'?'+request.full_path.split('?')[1]+'&username='+k+'&rowid='+(loop.index+9)|string}}';">删除</button></td>-->
         </tr>
         {%- endfor %}
     </table>

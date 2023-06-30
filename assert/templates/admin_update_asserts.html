@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}私人资产修改表{% endblock %}
+{% block head %}
+{{ super() }}
+<style type="text/css">
+    h1{
+        text-align: center;
+        margin-right:10%;
+    }
+    #curr_user{
+        float: right;
+        margin-top:-25px;
+        margin-right: 200px;
+        font-size: large;
+        font-family: MicrosoftYaHei;
+    }
+    span{
+        font-size: medium;
+        padding:0px 20px;
+    }
+    #ok{
+        margin-left:800px;
+        float:right;
+    }
+</style>
+{% endblock %}w
+{% block content %}
+<div id="h1"><h1>{{user}}{{aid}}资产修改表</h1></div>
+<div id="curr_user">
+    <a href="{{ url_for('user.profile')+'?'+request.full_path.split('&')[2] }}">{{ curr_user.username }}</a>
+    <a href="{{next}}">返回</a>
+</div>
+<div id="table">
+<form id="{{aid}}" method="post">
+    <table cellpadding="10px">
+        <thead>
+            <tr>
+                <th>资产分类</th>
+                <th>资产名称</th>
+                <th>资产型号</th>
+                <th>是否固定资产</th>
+                <th>购买日期</th>
+                <th>资产管理员</th>
+            </tr>
+        </thead>
+        <tr>
+            <td>
+                <select name="assert_type" required>
+                    <option hidden value="{{info[1]}}" id="assert_type"></option>
+                    <option value="2">办公家具</option>
+                    <option value="3">电脑及打印机</option>
+                    <option value="4">家电</option>
+                    <option value="6">数码产品</option>
+                    <option value="8">其他</option>
+                </select>
+            </td>
+            <td><input type="text" name="assert_name" value="{{info[2]}}" required></td>
+            <td><input type="text" name="assert_model" value="{{info[3]}}" required></td>
+            <td>
+                <select name="YoN" required>
+                    <option hidden value="{{info[4]}}" id="YoN"></option>
+                    <option selected>是</option>
+                    <option>否</option>
+                </select>
+            </td>
+            <td><input type="date" name="bought_date" value="{{info[5]}}" required></td>
+            <td>
+                <select name="assert_admin" required>
+                    <option hidden value="{{info[6]}}" id="assert_admin"></option>
+                    <option value="104970">汪鸿</option>
+                    <option value="104897">赵攀</option>
+                    <option value="104971">冯倩</option>
+                </select>
+            </td>
+            <td><input type="submit" value="确定"></td>
+        </tr>
+    </table>
+
+</form>
+</div>
+<script type="text/javascript">
+    assert_type=$("select[name='assert_type']")[0].options;
+    for (i=1;i<assert_type.length;i++)
+    {
+        if (assert_type[i].value==$("#assert_type")[0].value)
+        assert_type[i].selected=true;
+    }
+    YoN=$("select[name='YoN']")[0].options;
+    for (i=1;i<YoN.length;i++)
+    {
+        if (YoN[i].value==$("#YoN")[0].value)
+        YoN[i].selected=true;
+    }
+    assert_admin=$("select[name='assert_admin']")[0].options;
+    for (i=1;i<assert_admin.length;i++)
+    {
+        if (assert_admin[i].value==$("#assert_admin")[0].value)
+        assert_admin[i].selected=true;
+    }
+</script>
+{% endblock %}

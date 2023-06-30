@@ -157,6 +157,7 @@ async def personal_post(data, query_data):
 
         sheet["CDEFGHI"[l] + str(rows)].alignment = alignment
     sheet['D4'] = sheet['D4'].value.replace('个人', curr_user.username)
-    sheet['H6'] = data['assert_admin']
+    assert_admin=await db.select_db('user','username',user_id=int(data['assert_admin']))
+    sheet['H6'] =assert_admin[0][0]
     workbook.save(f"assert/download/personal_{curr_user.username}.xlsx")
     return redirect(url_for('ledger.personal_show', token=curr_token))
