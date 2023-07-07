@@ -11,7 +11,7 @@ from .user import user
 from .ledger import ledger
 from .admin import admin
 
-app = APIFlask(__name__, title='固定资产管理系统', version='0.01')
+app = APIFlask(__name__, title='固定资产管理系统', version='0.11',docs_ui='redoc')
 app.secret_key = os.getenv("SECRET_KEY", 'ocefjVp_pL4Iens21FTjsA')
 
 app.register_blueprint(user)
@@ -82,6 +82,11 @@ def init_data():
     mei.set_password('12345')
     db.cursor().execute(
         f"INSERT INTO user (user_id,role_id,username, password) VALUES (104900,8,'梅煜', '{mei.password}')")
+
+    ww=Employee(100342)
+    ww.set_password('123456')
+    db.cursor().execute(
+        f"INSERT INTO user (user_id,role_id,username, password) VALUES (100342,4,'汪洋', '{ww.password}')")
 
     wang = Employee(104970)
     wang.set_password('123456')
