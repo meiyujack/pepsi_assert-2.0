@@ -26,22 +26,33 @@ class AlterIn(TokenIn):
     rid = String(required=True)
 
 
-class DeleteAssert(TokenIn):
+class DeletePersonalAssert(TokenIn):
     aid = String(required=True)
 
 
-class UpdateAssert(DeleteAssert):
-    aid = String(required=True)
+class DeletePublicAssert(DeletePersonalAssert):
+    department = String(required=True)
+
+
+class UpdatePersonalAssert(DeletePersonalAssert):
     user = String(required=True)
 
 
-class UpdateAssertPost(Schema):
+class UpdatePublicAssert(DeletePersonalAssert):
+    department=String(required=True)
+
+
+class UpdatePersonalPost(Schema):
     assert_type = String(required=True)
     assert_name = String(required=True)
     assert_model = String(required=True)
     YoN = String(required=True)
     bought_date = String(required=True)
     assert_admin = String(required=True)
+
+
+class UpdatePublicPost(UpdatePersonalPost):
+    TDM=String(required=True)
 
 
 def get_accurate_file(path, pattern):
@@ -128,50 +139,76 @@ async def get_all_users(data):
 @admin.input(TokenIn, location='query')
 async def get_all_asserts_by_department(data):
     token = data["token"]
+    rid = secure.get_info_by_token(token, 'rid')
     curr_user = await Employee.get_user_by_token(token)
     privileges = await curr_user.get_privileges(token)
-    files = get_accurate_file("assert/download/", 'assert/download/public_*')
-    if len(privileges) in (4, 6):
-        if not files:
+    files = get_accurate_file("download/", 'download/public_*')
+    if rid in (8,4):
+        result = {}
+        num = 0
+        if len(files)==0:
             return '暂无人员添加公共资产信息'
-        else:
-            result = {}
-            for i in files:
-                workbook = load_workbook(i)
-                sheet = workbook.active
-                table = []
-                for row in sheet.iter_rows(min_row=8, max_row=sheet.max_row, min_col=3, max_col=sheet.max_column,
-                                           values_only=True):
-                    if None not in row:
-                        table.append(row)
-                result[re.match('^assert/download/public_(.*).xlsx', i).group(1)] = table
-            return render_template('admin_public.html', tables=result, curr_user=curr_user)
+        for file in files:
+            workbook = load_workbook(file)
+            sheet = workbook.active
+            table = []
+            for row in sheet.iter_rows(min_row=8, max_row=sheet.max_row, min_col=3,
+                                        max_col=sheet.max_column,
+                                        values_only=True):
+                if None not in row:
+                    table.append(row)
+            new_table = []
+            new_table.append(table[0].__add__(('操作',)))
+            department=re.match('^download/public_(.*).xlsx', file).group(1)
+            result[department] = table
+            if rid==8:
+                for t in table[1:]:
+                    new_table.append(
+                        t.__add__((Markup(
+                            f'<button type="button" name="update"><a href="update_public?aid={t[1]}&department={department}&token={token}">修改</a></button>'),
+                                    Markup(
+                                        f'<button type="button" name="remove"><a href="delete_public?aid={t[1]}&department={department}&token={token}")">删除</a></button>'))))
+            else:
+                for t in table[1:]:
+                    new_table.append(
+                        t.__add__((
+                                    Markup(
+                                        f'<button type="button" name="remove"><a href="delete_public?aid={t[1]}&department={department}&token={token}")">删除</a></button>'),)))
+            result[department] = new_table
+                
+        return render_template('admin_public.html', tables=result, curr_user=curr_user)
     else:
         for privilege in privileges:
             if 'query' in privilege[0]:
                 if curr_user.username == '汪鸿':
-                    if os.path.exists('assert/download/public_生产部.xlsx'):
-                        workbook = load_workbook('assert/download/public_生产部.xlsx')
+                    if os.path.exists('download/public_生产部.xlsx'):
+                        workbook = load_workbook('download/public_生产部.xlsx')
                         sheet = workbook.active
+                        result={}
                         table = []
                         for row in sheet.iter_rows(min_row=8, max_row=sheet.max_row, min_col=3,
                                                    max_col=sheet.max_column,
                                                    values_only=True):
                             if None not in row:
                                 table.append(row)
-                        return render_template('admin_public.html', tables=[table], curr_user=curr_user)
+                        new_table = [table[0].__add__(('操作',))]
+                        for t in table[1:]:
+                            new_table.append(t.__add__((Markup(
+        f'<button type="button" name="alter"><a href="update_public?aid={t[1]}&department=生产部&token={token}">修改</a></button>'),)))
+                        result["生产部"]=new_table
+                        return render_template('admin_public.html', tables=result, curr_user=curr_user)
                     return '暂无人员添加生产部公共资产信息'
                 elif curr_user.username == '赵攀':
                     files = ['财务部', '人事部', '市场部', '物流部', '行政部']
                     result = {}
                     num = 0
                     for file in files:
-                        if not os.path.exists(f'assert/download/public_{file}.xlsx'):
+                        if not os.path.exists(f'download/public_{file}.xlsx'):
                             num += 1
                             if num == len(files):
                                 return '暂无人员添加相关部门公共资产信息'
                         else:
-                            workbook = load_workbook(f'assert/download/public_{file}.xlsx')
+                            workbook = load_workbook(f'download/public_{file}.xlsx')
                             sheet = workbook.active
                             table = []
                             for row in sheet.iter_rows(min_row=8, max_row=sheet.max_row, min_col=3,
@@ -179,7 +216,11 @@ async def get_all_asserts_by_department(data):
                                                        values_only=True):
                                 if None not in row:
                                     table.append(row)
-                            result[file] = table
+                            new_table = [table[0].__add__(('操作',))]
+                            for t in table[1:]:
+                                new_table.append(t.__add__((Markup(
+        f'<button type="button" name="alter"><a href="update_public?aid={t[1]}&department={file}&token={token}">修改</a></button>'),)))
+                            result[file] = new_table
                     return render_template('admin_public.html', tables=result, curr_user=curr_user)
 
                 elif curr_user.username == '冯倩':
@@ -187,12 +228,12 @@ async def get_all_asserts_by_department(data):
                     result = {}
                     num = 0
                     for file in files:
-                        if not os.path.exists(f'assert/download/public_{file}.xlsx'):
+                        if not os.path.exists(f'download/public_{file}.xlsx'):
                             num += 1
                             if num == len(files):
                                 return '暂无人员添加相关部门公共资产信息'
                         else:
-                            workbook = load_workbook(f'assert/download/public_{file}.xlsx')
+                            workbook = load_workbook(f'download/public_{file}.xlsx')
                             sheet = workbook.active
                             table = []
                             for row in sheet.iter_rows(min_row=8, max_row=sheet.max_row, min_col=3,
@@ -200,7 +241,11 @@ async def get_all_asserts_by_department(data):
                                                        values_only=True):
                                 if None not in row:
                                     table.append(row)
-                            result[file] = table
+                            new_table = [table[0].__add__(('操作',))]
+                            for t in table[1:]:
+                                new_table.append(t.__add__((Markup(
+        f'<button type="button" name="alter"><a href="update_public?aid={t[1]}&department={file}&token={token}">修改</a></button>'),)))
+                            result[file] = new_table
                             return render_template('admin_public.html', tables=result, curr_user=curr_user)
                     return '暂无人员添加相关部门公共资产信息'
                 else:
@@ -214,9 +259,6 @@ async def get_all_asserts_by_personal(data):
     curr_user = await Employee.get_user_by_token(token)
     rid = secure.get_info_by_token(token, 'rid')
 
-    # administrator = Markup(
-    # f'<button type="button" name="remove"><a href="delete?aid={t[1]}&token={token}")">删除</a></button>')
-
     if rid == 1:
         return json.dumps({"402": "你没有权限！"}, ensure_ascii=False)
     else:
@@ -225,12 +267,12 @@ async def get_all_asserts_by_personal(data):
             result = {}
             num = 0
             for user in users:
-                if not os.path.exists(f'assert/download/personal_{user}.xlsx'):
+                if not os.path.exists(f'download/personal_{user}.xlsx'):
                     num += 1
                     if num == len(users):
                         return '暂无人员添加个人资产信息'
                 else:
-                    workbook = load_workbook(f'assert/download/personal_{user}.xlsx')
+                    workbook = load_workbook(f'download/personal_{user}.xlsx')
                     sheet = workbook.active
                     table = []
                     for row in sheet.iter_rows(min_row=8, max_row=sheet.max_row, min_col=3,
@@ -241,7 +283,7 @@ async def get_all_asserts_by_personal(data):
                     new_table = [table[0].__add__(('操作',))]
                     for t in table[1:]:
                         new_table.append(t.__add__((Markup(
-        f'<button type="button" name="alter"><a href="update?aid={t[1]}&user={user}&token={token}">修改</a></button>'),)))
+        f'<button type="button" name="alter"><a href="update_personal?aid={t[1]}&user={user}&token={token}">修改</a></button>'),)))
                     result[user] = new_table
             return render_template('admin_personal.html', tables=result, curr_user=curr_user)
         if curr_user.username == '汪鸿':
@@ -249,12 +291,12 @@ async def get_all_asserts_by_personal(data):
             result = {}
             num = 0
             for user in users:
-                if not os.path.exists(f'assert/download/personal_{user}.xlsx'):
+                if not os.path.exists(f'download/personal_{user}.xlsx'):
                     num += 1
                     if num == len(users):
                         return '暂无人员添加个人资产信息'
                 else:
-                    workbook = load_workbook(f'assert/download/personal_{user}.xlsx')
+                    workbook = load_workbook(f'download/personal_{user}.xlsx')
                     sheet = workbook.active
                     table = []
                     for row in sheet.iter_rows(min_row=8, max_row=sheet.max_row, min_col=3,
@@ -265,7 +307,7 @@ async def get_all_asserts_by_personal(data):
                     new_table = [table[0].__add__(('操作',))]
                     for t in table[1:]:
                         new_table.append(t.__add__((Markup(
-        f'<button type="button" name="alter"><a href="update?aid={t[1]}&user={user}&token={token}">修改</a></button>'),)))
+        f'<button type="button" name="alter"><a href="update_personal?aid={t[1]}&user={user}&token={token}">修改</a></button>'),)))
                     result[user] = new_table
             return render_template('admin_personal.html', tables=result, curr_user=curr_user)
         if curr_user.username == '冯倩':
@@ -273,12 +315,12 @@ async def get_all_asserts_by_personal(data):
             result = {}
             num = 0
             for user in users:
-                if not os.path.exists(f'assert/download/personal_{user}.xlsx'):
+                if not os.path.exists(f'download/personal_{user}.xlsx'):
                     num += 1
                     if num == len(users):
                         return '暂无人员添加个人资产信息'
                 else:
-                    workbook = load_workbook(f'assert/download/personal_{user}.xlsx')
+                    workbook = load_workbook(f'download/personal_{user}.xlsx')
                     sheet = workbook.active
                     table = []
                     for row in sheet.iter_rows(min_row=8, max_row=sheet.max_row, min_col=3,
@@ -289,7 +331,7 @@ async def get_all_asserts_by_personal(data):
                     new_table = [table[0].__add__(('操作',))]
                     for t in table[1:]:
                         new_table.append(t.__add__((Markup(
-        f'<button type="button" name="alter"><a href="update?aid={t[1]}&user={user}&token={token}">修改</a></button>'),)))
+        f'<button type="button" name="alter"><a href="update_personal?aid={t[1]}&user={user}&token={token}">修改</a></button>'),)))
                     result[user] = new_table
             return render_template('admin_personal.html', tables=result, curr_user=curr_user)
     if rid in (8,4):
@@ -297,12 +339,12 @@ async def get_all_asserts_by_personal(data):
         result = {}
         num = 0
         for user in users:
-            if not os.path.exists(f'assert/download/personal_{user[0]}.xlsx'):
+            if not os.path.exists(f'download/personal_{user[0]}.xlsx'):
                 num += 1
                 if num == len(users):
                     return '暂无人员添加个人资产信息'
             else:
-                workbook = load_workbook(f'assert/download/personal_{user[0]}.xlsx')
+                workbook = load_workbook(f'download/personal_{user[0]}.xlsx')
                 sheet = workbook.active
                 table = []
                 for row in sheet.iter_rows(min_row=8, max_row=sheet.max_row, min_col=3,
@@ -316,15 +358,15 @@ async def get_all_asserts_by_personal(data):
                     for t in table[1:]:
                         new_table.append(
                             t.__add__((Markup(
-                                f'<button type="button" name="update"><a href="update?aid={t[1]}&user={user[0]}&token={token}">修改</a></button>'),
+                                f'<button type="button" name="update"><a href="update_personal?aid={t[1]}&user={user[0]}&token={token}">修改</a></button>'),
                                        Markup(
-                                           f'<button type="button" name="remove"><a href="delete?aid={t[1]}&token={token}")">删除</a></button>'))))
+                                           f'<button type="button" name="remove"><a href="delete_personal?aid={t[1]}&token={token}")">删除</a></button>'))))
                 else:
                     for t in table[1:]:
                         new_table.append(
                             t.__add__((
                                        Markup(
-                                           f'<button type="button" name="remove"><a href="delete?aid={t[1]}&token={token}")">删除</a></button>'),)))
+                                           f'<button type="button" name="remove"><a href="delete_personal?aid={t[1]}&token={token}")">删除</a></button>'),)))
 
                 result[user[0]] = new_table
         return render_template('admin_personal.html', tables=result, curr_user=curr_user)
@@ -339,20 +381,20 @@ async def download(data):
     privileges = await curr_user.get_privileges(token)
     for privilege in privileges:
         if 'download' in privilege[0]:
-            if os.path.exists(f'assert/download/public_{department}.xlsx'):
-                wb, sheet = await get_which_workbook(f'assert/download/public_{department}.xlsx', department)
+            if os.path.exists(f'download/public_{department}.xlsx'):
+                wb, sheet = await get_which_workbook(f'download/public_{department}.xlsx', department)
                 for n in range(sheet.max_row - 9):
                     sheet[f'B{10 + n}'] = str(n + 1)
                     sheet[f'B{10 + n}'].alignment = alignment
-                wb.save(f'assert/download/public_{department}.xlsx')
-                return send_file(path_or_file=f'download/public_{department}.xlsx')
-            if os.path.exists(f'assert/download/personal_{department}.xlsx'):
-                wb, sheet = await get_which_workbook(f'assert/download/personal_{department}.xlsx', department)
+                wb.save(f'download/public_{department}.xlsx')
+                return send_file(path_or_file=f'../download/public_{department}.xlsx')
+            if os.path.exists(f'download/personal_{department}.xlsx'):
+                wb, sheet = await get_which_workbook(f'download/personal_{department}.xlsx', department)
                 for n in range(sheet.max_row - 9):
                     sheet[f'B{10 + n}'] = str(n + 1)
                     sheet[f'B{10 + n}'].alignment = alignment
-                wb.save(f'assert/download/personal_{department}.xlsx')
-                return send_file(path_or_file=f'download/personal_{department}.xlsx')
+                wb.save(f'download/personal_{department}.xlsx')
+                return send_file(path_or_file=f'../download/personal_{department}.xlsx')
     else:
         return json.dumps({"402": "你没有权限！"}, ensure_ascii=False)
 
@@ -377,26 +419,56 @@ async def alter_privilege(data):
     return flash(f"无权限")
 
 
-@admin.get('/delete')
-@admin.input(DeleteAssert, location='query')
-async def delete(data):
+@admin.get('/delete_personal')
+@admin.input(DeletePersonalAssert, location='query')
+async def delete_personal(data):
     token = data["token"]
     aid = data["aid"]
-    uid = await db.select_db("personal_assert", "personal_id", aid=aid)
-    uid = uid[0][0]
-    uname = await db.select_db("user", "username", user_id=uid)
-    uname = uname[0][0]
-    await db.just_exe(f'delete from personal_assert where aid = {aid};')
+
     curr_user = await Employee.get_user_by_token(token)
     privileges = await curr_user.get_privileges(token)
-    for privilege in privileges:
-        if 'delete' in privilege[0]:
-            if os.path.exists(f'assert/download/personal_{uname}.xlsx'):
-                workbook = load_workbook(f'assert/download/personal_{uname}.xlsx')
-                await delete_from_excel(workbook, aid, uname)
-                flash("该行资产删除成功～")
-                return redirect(url_for("admin.get_all_asserts_by_personal", token=token))
-    return json.dumps({"402": "你没有权限！"}, ensure_ascii=False)
+
+    uid = await db.select_db("personal_assert", "personal_id", aid=aid)
+    if uid:
+        uid = uid[0][0]
+        uname = await db.select_db("user", "username", user_id=uid)
+        uname = uname[0][0]
+        await db.just_exe(f'delete from personal_assert where aid = {aid};')
+        for privilege in privileges:
+            if 'delete' in privilege[0]:
+                if os.path.exists(f'download/personal_{uname}.xlsx'):
+                    workbook = load_workbook(f'download/personal_{uname}.xlsx')
+                    await delete_from_excel(workbook, aid, uname)
+                    flash("该行资产删除成功～")
+                    return redirect(url_for("admin.get_all_asserts_by_personal", token=token))
+        return json.dumps({"402": "你没有权限！"}, ensure_ascii=False)
+
+
+@admin.get('/delete_public')
+@admin.input(DeletePublicAssert,location='query')
+async def delete_public(data):
+    token = data["token"]
+    aid = data["aid"]
+    department=data.get("department")
+
+    curr_user = await Employee.get_user_by_token(token)
+    privileges = await curr_user.get_privileges(token)
+    
+    if department:
+        department_id=await db.select_db("department","department_id",department_name=department)
+    if department_id:
+        department_id=department_id[0][0]
+        department_name=await db.select_db("department","department_name",department_id=department_id)
+        department_name=department_name[0][0]
+        await db.just_exe(f'delete from public_assert where aid={aid};')
+        for privilege in privileges:
+            if 'delete' in privilege[0]:
+                if os.path.exists(f'download/public_{department_name}.xlsx'):
+                    workbook = load_workbook(f'download/public_{department_name}.xlsx')
+                    await delete_from_excel(workbook, aid, department_name)
+                    flash("该行资产删除成功～")
+                    return redirect(url_for("admin.get_all_asserts_by_department", token=token))
+        return json.dumps({"402": "你没有权限！"}, ensure_ascii=False)
 
 
 async def delete_from_excel(workbook, aid, uname):
@@ -405,27 +477,41 @@ async def delete_from_excel(workbook, aid, uname):
         if sheet['D' + str(r)].value == aid:
             Worksheet.delete_rows(sheet, r)
             break
-    workbook.save(f'assert/download/personal_{uname}.xlsx')
+    if uname[-1] not in ['部','所','办']: 
+        workbook.save(f'download/personal_{uname}.xlsx')
+    else:
+        workbook.save(f'download/public_{uname}.xlsx')
 
 
 async def update_from_excel(workbook, aid, uname, data):
-    sheet = workbook.active
-    assert_type = await db.select_db('category', 'name', cid=int(data['assert_type']))
-    assert_type = assert_type[0][0]
-    assert_admin = await db.select_db('user', 'username', user_id=int(data['assert_admin']))
-    assert_admin = assert_admin[0][0]
-    for r in range(1, sheet.max_row + 1):
-        if sheet['D' + str(r)].value == aid:
-            for v in range(len("CEFGHI")):
-                sheet["CEFGHI"[v] + str(r)] = \
-                [assert_type, data["assert_name"], data["assert_model"], data["YoN"], data["bought_date"],
-                 assert_admin][v]
-    workbook.save(f'assert/download/personal_{uname}.xlsx')
+    
+        sheet = workbook.active
+        assert_type = await db.select_db('category', 'name', cid=int(data['assert_type']))
+        assert_type = assert_type[0][0]
+        assert_admin = await db.select_db('user', 'username', user_id=int(data['assert_admin']))
+        assert_admin = assert_admin[0][0]
+        if uname[-1] not in ['部','所','办']:
+            for r in range(1, sheet.max_row + 1):
+                if sheet['D' + str(r)].value == aid:        
+                    for v in range(len("CEFGHI")):
+                        sheet["CEFGHI"[v] + str(r)] = \
+                        [assert_type, data["assert_name"], data["assert_model"], data["YoN"], data["bought_date"],
+                        assert_admin][v]
+            workbook.save(f'download/personal_{uname}.xlsx')
+        else:
+            for r in range(1, sheet.max_row + 1):
+                if sheet['D' + str(r)].value == aid:        
+                    for v in range(len("CEFGHIJ")):
+                        sheet["CEFGHIJ"[v] + str(r)] = \
+                        [assert_type, data["assert_name"], data["assert_model"], data["YoN"], data["bought_date"],
+                        assert_admin,data['TDM']][v]
+            workbook.save(f'download/public_{uname}.xlsx')
+        
+    
 
-
-@admin.get('/update')
-@admin.input(UpdateAssert, location='query')
-async def update(data):
+@admin.get('/update_personal')
+@admin.input(UpdatePersonalAssert, location='query')
+async def update_personal(data):
     token = data["token"]
     curr_user = await Employee.get_user_by_token(token)
     privileges = await curr_user.get_privileges(token)
@@ -436,14 +522,14 @@ async def update(data):
             info = await db.select_db("personal_assert", aid=aid)
             if info:
                 info = info[0]
-            return render_template("admin_update_asserts.html", curr_user=curr_user, user=user, aid=aid, info=info,next="personal_asserts?"+request.full_path.split('&')[-1])
+            return render_template("admin_update_personal_asserts.html", curr_user=curr_user, user=user, aid=aid, info=info,next="personal_asserts?"+request.full_path.split('&')[-1])
     return json.dumps({"402": "你没有权限！"}, ensure_ascii=False)
 
 
-@admin.post('/update')
-@admin.input(UpdateAssertPost, location='form')
-@admin.input(UpdateAssert, location='query')
-async def update_assert(data, query_data):
+@admin.post('/update_personal')
+@admin.input(UpdatePersonalPost, location='form')
+@admin.input(UpdatePersonalAssert, location='query')
+async def update_personal_assert(data, query_data):
     aid = query_data["aid"]
     info = await db.select_db("personal_assert", aid=aid)
     if info:
@@ -469,6 +555,7 @@ async def update_assert(data, query_data):
                 update_info["purchase_date"] = data["bought_date"]
             if data["assert_admin"] != info[6]:
                 update_info["admin_id"] = data["assert_admin"]
+
             s = ""
             if update_info:
                 for k, v in update_info.items():
@@ -478,8 +565,8 @@ async def update_assert(data, query_data):
                 if msg:
                     return msg
 
-                if os.path.exists(f'assert/download/personal_{user}.xlsx'):
-                    workbook = load_workbook(f'assert/download/personal_{user}.xlsx')
+                if os.path.exists(f'download/personal_{user}.xlsx'):
+                    workbook = load_workbook(f'download/personal_{user}.xlsx')
                     await update_from_excel(workbook, aid, user, data)
 
                     flash("修改成功～")
@@ -488,3 +575,75 @@ async def update_assert(data, query_data):
             return redirect(url_for("admin.update",aid=aid,user=user,token=token))
 
     return json.dumps({"402": "你没有权限！"}, ensure_ascii=False)
+
+
+@admin.get('/update_public')
+@admin.input(UpdatePublicAssert, location='query')
+async def update_public(data):
+    token = data["token"]
+    curr_user = await Employee.get_user_by_token(token)
+    privileges = await curr_user.get_privileges(token)
+    for privilege in privileges:
+        if 'update' in privilege[0]:
+            department = data["department"]
+            aid = data["aid"]
+            info = await db.select_db("public_assert", aid=aid)
+            if info:
+                info = info[0]
+            return render_template("admin_update_public_asserts.html", curr_user=curr_user, department=department, aid=aid, info=info,next="department_asserts?"+request.full_path.split('&')[-1])
+    return json.dumps({"402": "你没有权限！"}, ensure_ascii=False)
+
+
+@admin.post('/update_public')
+@admin.input(UpdatePublicPost,location='form')
+@admin.input(UpdatePublicAssert,location='query')
+async def update_public_assert(data,query_data):
+    aid = query_data["aid"]
+    info = await db.select_db("public_assert", aid=aid)
+    if info:
+        info = info[0]
+    token = query_data["token"]
+    department = query_data["department"]
+
+    curr_user = await Employee.get_user_by_token(token)
+    privileges = await curr_user.get_privileges(token)
+    for privilege in privileges:
+        if 'update' in privilege[0]:
+
+            update_info = {}
+            if int(data["assert_type"]) != info[1]:
+                update_info["cid"] = int(data["assert_type"])
+            if data["assert_name"] != info[2]:
+                update_info["name"] = data["assert_name"]
+            if data['assert_model'] != info[3]:
+                update_info["model"] = data["assert_model"]
+            if data["YoN"] != info[4]:
+                update_info["is_fixed"] = data["YoN"]
+            if data["bought_date"] != info[5]:
+                update_info["purchase_date"] = data["bought_date"]
+            if data["assert_admin"] != info[7]:
+                update_info["admin_id"] = data["assert_admin"]
+            if data["TDM"]!=info[6]:
+                update_info["TDM"]=data["TDM"]
+            s = ""
+            if update_info:
+                for k, v in update_info.items():
+                    s += f"{k}='{v}',"
+                s = s[:-1]
+                msg = await db.just_exe(f"update public_assert set {s} where aid = {aid}")
+                if msg:
+                    return msg
+
+                if os.path.exists(f'download/public_{department}.xlsx'):
+                    workbook = load_workbook(f'download/public_{department}.xlsx')
+                    await update_from_excel(workbook, aid, department, data)
+
+                    flash("修改成功～")
+                    return redirect(url_for("admin.get_all_asserts_by_department", token=token))
+            flash("当前没有修改～")
+            return redirect(url_for("admin.update",aid=aid,user=department,token=token))
+
+    return json.dumps({"402": "你没有权限！"}, ensure_ascii=False)
+
+
+

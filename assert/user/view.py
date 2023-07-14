@@ -5,7 +5,7 @@ from flask.templating import render_template
 from . import user
 
 from apiflask import Schema, HTTPTokenAuth
-from apiflask.fields import String, Integer, Raw
+from apiflask.fields import String, Integer, File
 from apiflask.validators import Length
 
 from ..employee import Employee, db, secure, base
@@ -35,10 +35,14 @@ class TokenIn(Schema):
 
 
 class ProfileIn(Schema):
-    avatar = Raw()
+    avatar = String()
     gender = Integer()
     department = String()
     tel = String()
+
+
+class AvatarIn(TokenIn):
+    avatar=File()
 
 
 @user.get('/')
@@ -101,6 +105,16 @@ async def get_your_name(data):
     return ''
 
 
+@user.post('/avatar')
+@user.input(AvatarIn,location='form_and_files')
+async def post_avatar(data):
+    avatar_file=data['avatar']
+    token=data['token']
+    uid = secure.get_info_by_token(token, 'uid')
+    db.upsert("user",{})
+    
+
+
 @user.get('/profile')
 @user.input(TokenIn, location='query')
 # @token_auth.login_required
@@ -123,12 +137,12 @@ async def profile_update(data, query_data):
     curr_token = query_data.get('token')
     if curr_token:
         curr_user = await Employee.get_user_by_token(curr_token)
-        # avatar=data.get("avatar")
+        avatar=data.get("avatar")
         gender = str(data.get("gender"))
         department_id = data.get("department")
         tel = data.get("tel")
         r = None
-        print(gender)
+        print(avatar)
         if gender!='None':
             if gender != curr_user.gender:
                 r = await db.upsert('user', {'user_id': curr_user.user_id, 'username': curr_user.username,

@@ -21,11 +21,11 @@ alignment = Alignment(horizontal='center')
 async def get_which_workbook(raw_file_name, new_clue):
     file_name = None
     if 'public' in raw_file_name:
-        if os.path.exists(f"assert/download/public_{new_clue}.xlsx"):
-            file_name = f"assert/download/public_{new_clue}.xlsx"
+        if os.path.exists(f"download/public_{new_clue}.xlsx"):
+            file_name = f"download/public_{new_clue}.xlsx"
     if 'personal' in raw_file_name:
-        if os.path.exists(f"assert/download/personal_{new_clue}.xlsx"):
-            file_name = f"assert/download/personal_{new_clue}.xlsx"
+        if os.path.exists(f"download/personal_{new_clue}.xlsx"):
+            file_name = f"download/personal_{new_clue}.xlsx"
     workbook = load_workbook(filename=file_name or raw_file_name)
     return workbook, workbook.active
 
@@ -94,7 +94,7 @@ async def public_post(data, query_data):
     msg = await db.upsert("public_assert", {"aid": assert_id, "cid": data['assert_type'], "name": data["assert_name"],
                                             "model": data["assert_model"],
                                             "is_fixed": 1 if data["YoN"] == 'True' else 0,
-                                            "purchase_date": data["bought_date"], "manager": data["TDM"],
+                                            "purchase_date": data["bought_date"], "manager": data["TDM"],"department_id":int(curr_user.department_id),
                                             "admin_id": data["assert_admin"]}, 0)
     if not msg:
         flag = 1
@@ -110,8 +110,9 @@ async def public_post(data, query_data):
         sheet["CDEFGHIJ"[l] + str(rows)].alignment = alignment
     if curr_department_name not in sheet['D4'].value:
         sheet['D4'] = curr_department_name + sheet['D4'].value
-    sheet['H6'] = data['assert_admin']
-    workbook.save(f"assert/download/public_{curr_department_name}.xlsx")
+    assert_admin=await db.select_db('user','username',user_id=int(data['assert_admin']))
+    sheet['H6'] =assert_admin[0][0]
+    workbook.save(f"download/public_{curr_department_name}.xlsx")
     if flag:
         flash("已添加")
     return redirect(url_for('ledger.public_show', token=curr_token))
@@ -159,5 +160,5 @@ async def personal_post(data, query_data):
     sheet['D4'] = sheet['D4'].value.replace('个人', curr_user.username)
     assert_admin=await db.select_db('user','username',user_id=int(data['assert_admin']))
     sheet['H6'] =assert_admin[0][0]
-    workbook.save(f"assert/download/personal_{curr_user.username}.xlsx")
+    workbook.save(f"download/personal_{curr_user.username}.xlsx")
     return redirect(url_for('ledger.personal_show', token=curr_token))

@@ -8,8 +8,10 @@ CREATE TABLE public_assert(
     purchase_date TEXT NOT NULL,
     manager TEXT NOT NULL,
     admin_id INTEGER NOT NULL,
+    department_id INTEGER NOT NULL,
     FOREIGN KEY(cid) REFERENCES category(cid),
     FOREIGN KEY(admin_id) REFERENCES user(user_id)
+    FOREIGN KEY(department_id) REFERENCES department(department_id)
 );
 
 DROP TABLE IF EXISTS personal_assert;
@@ -58,7 +60,7 @@ CREATE TABLE user(
     password TEXT NOT NULL,
     create_time TEXT default (datetime('now','localtime')),
     gender INTEGER,
-    department_id TEXT,
+    department_id INTEGER,
     avatar BLOB,
     telephone TEXT,
     FOREIGN KEY(department_id) REFERENCES department(department_id),

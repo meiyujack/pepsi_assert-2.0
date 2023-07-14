@@ -11,7 +11,7 @@ from .user import user
 from .ledger import ledger
 from .admin import admin
 
-app = APIFlask(__name__, title='固定资产管理系统', version='0.11',docs_ui='redoc')
+app = APIFlask(__name__, title='固定资产管理系统', version='0.2',docs_ui='redoc')
 app.secret_key = os.getenv("SECRET_KEY", 'ocefjVp_pL4Iens21FTjsA')
 
 app.register_blueprint(user)
@@ -139,6 +139,9 @@ def init_data():
     db.commit()
     print("Datas has been inserted successful!")
 
+
+def run():
+    app.run(host="0.0.0.0",debug=True)
 
 @app.get('/')
 def index():
