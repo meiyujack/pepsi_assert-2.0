@@ -285,6 +285,9 @@ async def get_all_asserts_by_personal(data):
                         new_table.append(t.__add__((Markup(
         f'<button type="button" name="alter"><a href="update_personal?aid={t[1]}&user={user}&token={token}">修改</a></button>'),)))
                     result[user] = new_table
+            for k,v in list(result.items()):
+                if len(v)==1:
+                    result.pop(k)
             return render_template('admin_personal.html', tables=result, curr_user=curr_user)
         if curr_user.username == '汪鸿':
             users = await get_users_by_departments([1])
@@ -309,6 +312,9 @@ async def get_all_asserts_by_personal(data):
                         new_table.append(t.__add__((Markup(
         f'<button type="button" name="alter"><a href="update_personal?aid={t[1]}&user={user}&token={token}">修改</a></button>'),)))
                     result[user] = new_table
+            for k,v in list(result.items()):
+                if len(v)==1:
+                    result.pop(k)
             return render_template('admin_personal.html', tables=result, curr_user=curr_user)
         if curr_user.username == '冯倩':
             users = await get_users_by_departments([7, 8, 9, 10, 11, 12])
@@ -333,6 +339,9 @@ async def get_all_asserts_by_personal(data):
                         new_table.append(t.__add__((Markup(
         f'<button type="button" name="alter"><a href="update_personal?aid={t[1]}&user={user}&token={token}">修改</a></button>'),)))
                     result[user] = new_table
+            for k,v in list(result.items()):
+                if len(v)==1:
+                    result.pop(k)
             return render_template('admin_personal.html', tables=result, curr_user=curr_user)
     if rid in (8,4):
         users = await db.select_db('user', 'username')
@@ -369,6 +378,9 @@ async def get_all_asserts_by_personal(data):
                                            f'<button type="button" name="remove"><a href="delete_personal?aid={t[1]}&token={token}")">删除</a></button>'),)))
 
                 result[user[0]] = new_table
+        for k,v in list(result.items()):
+            if len(v)==1:
+                result.pop(k)
         return render_template('admin_personal.html', tables=result, curr_user=curr_user)
 
 

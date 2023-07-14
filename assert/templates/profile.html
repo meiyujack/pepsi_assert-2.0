@@ -69,7 +69,7 @@
     </ul>
 </div>
 <div id="curr_user"><span><a href="{{ url_for('user.profile')+'?'+request.full_path.split('?')[1] }}">{{ curr_user.username }}</a></span></div>
-<div id="logout"><a href="{{url_for('user.logout',token=token)}}">登出</a></div>
+<div id="logout"><a href="{{url_for('user.logout',token=token)}}">退出</a></div>
 <div id="info">
 <!--    {% if curr_user is defined %}-->
 <!--    value of variable: {{ curr_user }}-->
