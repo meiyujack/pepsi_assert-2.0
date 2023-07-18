@@ -658,4 +658,44 @@ async def update_public_assert(data,query_data):
     return json.dumps({"402": "你没有权限！"}, ensure_ascii=False)
 
 
+@admin.get('/export_excel')
+@admin.input(TokenIn,location='query')
+async def export_excel(data):
+    rid=secure.get_info_by_token(data['token'],'rid')
+    if rid in [4,8]:
+        await db.connect_db()
+        public=await db.just_exe("SELECT department_name,c.name,aid,pub.name,model,is_fixed,purchase_date,username FROM ((public_assert pub JOIN category c on pub.cid=c.cid) JOIN user on pub.admin_id=user.user_id) pub JOIN department d ON pub.department_id=d.department_id;")
+        print(public)
+        personal=await db.just_exe("SELECT department_name,c.name,aid,pa.name,model,is_fixed,purchase_date,personal_id,username FROM ((personal_assert pa JOIN category c on pa.cid=c.cid) JOIN user on pa.admin_id=user.user_id) pa JOIN department d ON pa.department_id=d.department_id;")
+        print(personal)
+        workbook=load_workbook("assert/templates/whole.xlsx")
+        sheet=workbook.active
+        rows=sheet.max_row
+        for i in public:
+            rows += 1
+            for l in range(len("CDEFGHIJK")):
+                print(i[7])
+                sheet["CDEFGHIJK"[l] + str(rows)] = [i[0], i[1], i[2], i[3],i[4],'是','否' if i[5]==0 else '是',i[6],i[7]][l]
+                sheet["CDEFGHIJK"[l] + str(rows)].alignment = alignment
+        workbook.save("download/西区资产明细汇总表.xlsx")
 
+        workbook=load_workbook("download/西区资产明细汇总表.xlsx")
+        sheet=workbook.active
+        rows=sheet.max_row
+        rows+=1
+        for i in personal:
+            for l in range(len("CDEFGHIJKL")):
+                owner_name=await db.select_db("user","username",user_id=i[7])
+                owner_name=owner_name[0][0]
+                sheet["CDEFGHIJKL"[l]+str(rows)]=[i[0],i[1],i[2],i[3],i[4],'否','否' if i[5]==0 else '是',i[6],i[8],owner_name][l]
+                sheet["CDEFGHIJKL"[l] + str(rows)].alignment = alignment
+            rows+=1           
+        workbook.save("download/西区资产明细汇总表.xlsx")
+
+        workbook=load_workbook("download/西区资产明细汇总表.xlsx")
+        sheet=workbook.active
+        for n in range(sheet.max_row - 7):
+            sheet[f'B{8 + n}'] = str(n + 1)
+            sheet[f'B{8 + n}'].alignment = alignment
+        workbook.save(f'download/西区资产明细汇总表.xlsx')
+        return send_file(path_or_file=f'../download/西区资产明细汇总表.xlsx')
