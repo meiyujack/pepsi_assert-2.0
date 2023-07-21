@@ -3,55 +3,64 @@
 {% block head %}
 {{ super() }}
 <style type="text/css">
-    #navigate{
-        width:120px;
-        height:200px;
-        margin-top:200px;
-        margin-left:110px;
-        float:left;
-        background:grey;
-        opacity:75%;
+    #navigate {
+        width: 120px;
+        height: 200px;
+        margin-top: 200px;
+        margin-left: 110px;
+        float: left;
+        background: grey;
+        opacity: 75%;
     }
-    #curr_user{
-        position:absolute;
-        top:50px;
-        left:900px;
+
+    #curr_user {
+        position: absolute;
+        top: 50px;
+        left: 900px;
         font-size: large;
         font-family: MicrosoftYaHei;
     }
-    ul{
-        list-style:none;
-        padding-left:26px;
+
+    ul {
+        list-style: none;
+        padding-left: 26px;
     }
-    #info{
-        width:200px;
-        height:300px;
-        border:solid 1px black;
-        position:absolute;
-        top:180px;
-        left:800px;
-        line-height:50px;
+
+    #info {
+        width: 200px;
+        height: 300px;
+        border: solid 1px black;
+        position: absolute;
+        top: 180px;
+        left: 800px;
+        line-height: 50px;
     }
-    form{
-        margin-left:15px;
+
+    form {
+        margin-left: 15px;
     }
-    select{
-        width:100px;
+
+    select {
+        width: 100px;
     }
-    input[type="tel"]{
-        width:80px;
+
+    input[type="tel"] {
+        width: 80px;
     }
-    input[type="submit"]{
-        float:right;
-        margin-right:30px;
+
+    input[type="submit"] {
+        float: right;
+        margin-right: 30px;
     }
-    em{
-        color:red;
+
+    em {
+        color: red;
     }
-    #logout{
-        position:absolute;
-        top:50px;
-        left:975px;
+
+    #logout {
+        position: absolute;
+        top: 50px;
+        left: 975px;
     }
 </style>
 {% endblock %}
@@ -59,11 +68,11 @@
 <div id="navigate">
     <ul>
         <li><a href="{{ url_for('ledger.public_show',token=token) }}">公共资产</a></li>
-        <li><a href="{{ url_for('ledger.personal_show',token=token) }}">个人资产</a></li>
+        <li><a href="{{ url_for('ledger.personal_show',page=1,token=token) }}">个人资产</a></li>
     </ul>
     <ul>
         <li><a href="{{ url_for('user.update_password',token=token) }}">修改密码</a></li>
-        <br/>
+        <br />
         <li><a href="{{ url_for('admin.get_all_asserts_by_personal',token=token) }}" hidden>管理资产</a></li>
         <li><a href="{{ url_for('admin.get_all_users',token=token) }}" hidden>管理人员</a></li>
     </ul>
@@ -71,96 +80,90 @@
         <li><a href="{{ url_for('admin.export_excel',token=token) }}" hidden>一键导出</a></li>
     </ul>
 </div>
-<div id="curr_user"><span><a href="{{ url_for('user.profile')+'?'+request.full_path.split('?')[1] }}">{{ curr_user.username }}</a></span></div>
+<div id="curr_user"><span><a href="{{ url_for('user.profile')+'?'+request.full_path.split('?')[1] }}">{{
+            curr_user.username }}</a></span></div>
 <div id="logout"><a href="{{url_for('user.logout',token=token)}}">退出</a></div>
 <div id="info">
-<!--    {% if curr_user is defined %}-->
-<!--    value of variable: {{ curr_user }}-->
-<!--    {% else %}-->
-<!--    curr_user is not defined-->
-<!--    {% endif %}-->
+    <!--    {% if curr_user is defined %}-->
+    <!--    value of variable: {{ curr_user }}-->
+    <!--    {% else %}-->
+    <!--    curr_user is not defined-->
+    <!--    {% endif %}-->
     <form method="post">
-        <label for="avatar">头像</label><input type="file" name="avatar" id="file" accept="image/png, image/jpeg"><img src="" id="avatar">
+        <label for="avatar">头像</label><input type="file" name="avatar" id="file" accept="image/png, image/jpeg"><img
+            src="" id="avatar">
         <label for="gender">性别</label>
         <label hidden id="gender">{{ curr_user.gender }}</label>
         <option id="di_dn" hidden value="{{curr_user.department_id}}">{{department}}</option>
-            <input type="radio" value="1" name="gender">男
-            <input type="radio" value="0" name="gender">女
+        <input type="radio" value="1" name="gender">男
+        <input type="radio" value="0" name="gender">女
         <br>
         <label for="department">部门<em>*</em></label>
         <select name="department" id="department" required>
-                <option value="">请选择部门：</option>
+            <option value="">请选择部门：</option>
         </select><br>
         <label for="tel">电话</label><input type="tel" name="tel" placeholder="{{ curr_user.telephone }}"><br>
         <input type="submit" value="提交">
     </form>
 </div>
 <script type="text/javascript">
-$(function(){
-                $.ajax({
-            url:'/admin/get_privileges?token='+location.search.substring(7),
-            success:function(data){
-                for (i=0;i<data.length;i++)
-                {
-                    if (data[i]=='query'){
-                        $('#navigate ul li a')[3].hidden=false;
+    $(function () {
+        $.ajax({
+            url: '/admin/get_privileges?token=' + location.search.substring(7),
+            success: function (data) {
+                for (i = 0; i < data.length; i++) {
+                    if (data[i] == 'query') {
+                        $('#navigate ul li a')[3].hidden = false;
                     }
-                    if (data[i]=='find'){
-                        $('#navigate ul li a')[4].hidden=false;
+                    if (data[i] == 'find') {
+                        $('#navigate ul li a')[4].hidden = false;
                     }
-                    if (data[i]=='query'|| data[i]=='find'){
-                        $('#navigate ul li a')[5].hidden=false;
+                    if (data[i] == 'query' || data[i] == 'find') {
+                        $('#navigate ul li a')[5].hidden = false;
                     }
                 }
             }
         });
 
-                a=document.getElementsByTagName("a")[0];
-                function show()
-                {   department=document.getElementById("department");
-                    if (department.selectedOptions[0].value=="")
-                    {
-                        alert("请先选择部门！");
-                        return false;
-                    }
-                };
-                a.onclick=show;
-                nums=$("input[name='gender']").length;
-                for (i=0;i<nums;i++)
-                {
-                    if ($("input[name='gender']")[i].value==$("#gender")[0].innerHTML)
-                    {
-                        $("input[name='gender']")[i].checked=true
-                    }
-                }
-                department_o=$("#di_dn")[0]
-                department=$("#department")[0]
-                if (department_o.text.length>0)
-                {
-                    department.selectedOptions[0].value=department_o.value;
-                    department.selectedOptions[0].text=department_o.text;
-                }
+        a = document.getElementsByTagName("a")[0];
+        function show() {
+            department = document.getElementById("department");
+            if (department.selectedOptions[0].value == "") {
+                alert("请先选择部门！");
+                return false;
+            }
+        };
+        a.onclick = show;
+        nums = $("input[name='gender']").length;
+        for (i = 0; i < nums; i++) {
+            if ($("input[name='gender']")[i].value == $("#gender")[0].innerHTML) {
+                $("input[name='gender']")[i].checked = true
+            }
+        }
+        department_o = $("#di_dn")[0]
+        department = $("#department")[0]
+        if (department_o.text.length > 0) {
+            department.selectedOptions[0].value = department_o.value;
+            department.selectedOptions[0].text = department_o.text;
+        }
 
-    $("#department").mousedown(function(){
-        $.ajax({
-            url:'/user/departments?token='+location.search.substring(7),
-            //type:'get',
-            success:function(data){
-                if (data.length>1)
-                {
-                    departments=eval(data);
-                    if ($("#department")[0].options.length==1)
-                    {
-                        for (i=0;i<departments.length;i++)
-                        {
-                            $("#department")[0].add(new Option(departments[i][1],departments[i][0]));
+        $("#department").mousedown(function () {
+            $.ajax({
+                url: '/user/departments?token=' + location.search.substring(7),
+                //type:'get',
+                success: function (data) {
+                    if (data.length > 1) {
+                        departments = eval(data);
+                        if ($("#department")[0].options.length == 1) {
+                            for (i = 0; i < departments.length; i++) {
+                                $("#department")[0].add(new Option(departments[i][1], departments[i][0]));
+                            }
                         }
                     }
                 }
-            }
-        });
-    })
+            });
+        })
 
-})
+    })
 </script>
 {% endblock %}
