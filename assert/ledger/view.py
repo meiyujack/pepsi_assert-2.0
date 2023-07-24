@@ -189,7 +189,7 @@ async def personal_show(page, query_data):
         f"select count(*) from personal_assert where personal_id={curr_user.user_id}"
     )
     rows = rows[0][0]
-    pagination, pages = await get_table_by_page(sheet, 8, 9, rows)
+    pagination, pages = await get_table_by_page(sheet, 8, 10, rows + 1)
     page_result = pagination[page - 1]
     import pprint
 
@@ -202,10 +202,10 @@ async def personal_show(page, query_data):
     )
 
 
-@ledger.post("/personal")
+@ledger.post("/personal/<int:page>")
 @ledger.input(BaseAssert, location="form")
 @ledger.input(TokenIn, location="query")
-async def personal_post(data, query_data):
+async def personal_post(page, data, query_data):
     curr_token = query_data["token"]
     curr_user = await Employee.get_user_by_token(curr_token)
     workbook, sheet = await get_which_workbook(
@@ -226,6 +226,7 @@ async def personal_post(data, query_data):
             "admin_id": data["assert_admin"],
             "personal_id": curr_user.user_id,
         },
+        0,
     )
     if not msg:
         flash("数据库已记录")
@@ -250,4 +251,4 @@ async def personal_post(data, query_data):
     )
     sheet["H6"] = assert_admin[0][0]
     workbook.save(f"download/personal_{curr_user.username}.xlsx")
-    return redirect(url_for("ledger.personal_show", token=curr_token))
+    return redirect(url_for("ledger.personal_show", token=curr_token, page=1))
