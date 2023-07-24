@@ -226,7 +226,6 @@ async def personal_post(data, query_data):
             "admin_id": data["assert_admin"],
             "personal_id": curr_user.user_id,
         },
-        0,
     )
     if not msg:
         flash("数据库已记录")

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh">
+
 <head>
     <meta charset="UTF-8">
     {% block head %}
@@ -7,49 +8,54 @@
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
     <script type="text/javascript" src="/static/jquery-3.6.4.min.js"></script>
     <style type="text/css">
-        html{
-			height: 60%;
-		}
-		body{
-			margin: 0;
-			background: url("/static/background.png") no-repeat;
-			background-size: cover;
-			height: 100%;
-            width:95%;
-		}
-		a{
-		    text-decoration:none;
-		}
-		#footer{
-		    text-align:center;
-		    position:absolute;
-            top:95%;
-            left:45%;
-		}
-        #message{
-            color:orange;
-            text-align:center;
-        }
-        #message ul{
-            list-style:none;
+        html {
+            height: 60%;
         }
 
+        body {
+            margin: 0;
+            background: url("/static/background.png");
+            background-size: cover;
+            height: 100%;
+            width: 95%;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        #footer {
+            text-align: center;
+            position: relative;
+            top: 169%;
+        }
+
+        #message {
+            color: orange;
+            text-align: center;
+        }
+
+        #message ul {
+            list-style: none;
+        }
     </style>
     {% endblock %}
 </head>
+
 <body>
-<div id="message">
-    <ul>
-        {% for message in get_flashed_messages() %}
-        <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
-</div>
-<div id="content">{% block content %}{% endblock %}</div>
-<div id="footer">
-    {% block footer %}
-    &copy;CopyLeft 2022 by meiyujack
-    {% endblock %}
-</div>
+    <div id="message">
+        <ul>
+            {% for message in get_flashed_messages() %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div id="content">{% block content %}{% endblock %}</div>
+    <div id="footer">
+        {% block footer %}
+        &copy;CopyLeft 2022 by meiyujack
+        {% endblock %}
+    </div>
 </body>
+
 </html>
