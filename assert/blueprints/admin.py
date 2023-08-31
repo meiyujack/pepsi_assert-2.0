@@ -3,9 +3,8 @@ import re
 from markupsafe import Markup
 
 from . import admin
-from ..employee import db, Employee
-from ..user.view import TokenIn
-from ..ledger.view import get_which_workbook, alignment, border
+from .user import TokenIn
+from .ledger import get_which_workbook, alignment, border
 from auth import WebSecurity
 
 from apiflask import Schema
@@ -13,8 +12,9 @@ from apiflask.fields import String
 from flask import send_file, json, render_template, flash, url_for, redirect, request
 from openpyxl import load_workbook
 from openpyxl.worksheet.worksheet import Worksheet
+from apiflask import APIBlueprint
 
-secure = WebSecurity("ocefjVp_pL4Iens21FTjsA")
+admin = APIBlueprint("admin", __name__)
 
 
 class DownloadIn(TokenIn):

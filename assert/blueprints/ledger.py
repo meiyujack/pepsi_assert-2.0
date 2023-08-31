@@ -1,11 +1,9 @@
 import os, random
 
 from . import ledger
-from ..employee import Employee, secure
-from ..user.view import TokenIn, db
-from database.sqlite_async import AsyncSqlite
 import aiosqlite
 
+from .user import TokenIn
 from flask import render_template, url_for, redirect, flash
 from openpyxl import load_workbook
 from openpyxl.styles import Alignment, Border, Side
@@ -14,6 +12,9 @@ from openpyxl.drawing.image import Image
 from apiflask import Schema
 from apiflask.fields import String
 from apiflask.validators import OneOf
+from apiflask import APIBlueprint
+
+ledger = APIBlueprint("ledger", __name__)
 
 alignment = Alignment(horizontal="center")
 border = Border(
