@@ -1,6 +1,8 @@
 from .extensions import db
-from flask_login import UserMixin
+from .settings import BaseConfig
 from werkzeug.security import check_password_hash, generate_password_hash
+from itsdangerous import URLSafeTimedSerializer,BadSignature,SignatureExpired
+from flask_login import UserMixin
 
 from datetime import datetime
 
@@ -23,7 +25,7 @@ class Category(db.Model):
     comment = db.Column(db.String(255))
 
 
-class User(db.Model, UserMixin):
+class User(db.Model,UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     rid = db.Column(db.Integer, db.ForeignKey(Role.id), default=1)
     username = db.Column(db.String(16), nullable=False)
@@ -40,6 +42,34 @@ class User(db.Model, UserMixin):
     def check_password(self, curr_password):
         is_valid = check_password_hash(self.password, curr_password)
         return is_valid
+
+    def generate_token(self):
+        token = URLSafeTimedSerializer(BaseConfig.SECRET_KEY).dumps({"id":self.id,"rid":self.rid})
+        return token
+
+    @staticmethod
+    def get_info_by_token(token, key, max_age=3 * 24 * 60 * 60):
+        """
+        获取加密内容
+        :param token: 待解析内容
+        :param key: 待解析内容的key
+        :param max_age: 保持时间。单位s
+        :return: Any|None
+        """
+        try:
+            info = URLSafeTimedSerializer(BaseConfig.SECRET_KEY).loads(
+                token, max_age=max_age
+            )
+        except BadSignature or SignatureExpired:
+            return None
+        return info[key]
+
+    def check_token(token)->bool:
+        try:
+            URLSafeTimedSerializer(BaseConfig.SECRET_KEY).loads(token)
+        except BadSignature or SignatureExpired:
+            return False
+        return True
 
 
 class Public_Assert(db.Model):

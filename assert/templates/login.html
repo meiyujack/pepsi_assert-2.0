@@ -131,6 +131,7 @@
 		}
 		a{
 		    color: silver;
+			padding-left: 20px;
 		}
 		a:link{
 		    color:blue;
@@ -155,6 +156,6 @@
     <div class="loginPasswordText">密&nbsp&nbsp&nbsp码</div>
     <div class="loginPasswordNode"><input type="password" name="password" class="passwordInput" placeholder="请输入密码"></div>
     <input class="button" type="submit" value="登录"/>
-    <div class="attention"><a href={{url_for('user.sign_show')}}>还没注册？</a></div>
+    <div class="attention">记住我<input type="checkbox" name="remember_me" id="remember" value="off" unchecked><a href={{url_for('user.sign_show')}}>还没注册？</a></div>
 </form>
 {% endblock %}

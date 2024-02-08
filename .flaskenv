@@ -1,2 +1,3 @@
 FLASK_APP=assert:app
-FLASK_CONFIG=production
+#FLASK_ENV=development
+#FLASK_RUN_PORT=8080

@@ -1,18 +1,21 @@
 import json, os
+import datetime
 
-from flask import redirect, url_for, flash
+from flask import redirect, url_for, flash,request
 from flask.templating import render_template
-from flask_login import login_user, logout_user, login_required, current_user
+from flask_login import current_user,login_user,login_required,logout_user
 
-from apiflask import Schema, HTTPTokenAuth
+from apiflask import Schema
 from apiflask.fields import String, Integer, File
 from apiflask.validators import Length
 from apiflask import APIBlueprint
 
+from ..models import User,Department
+import requests
 
 user = APIBlueprint("user", __name__)
 
-token_auth = HTTPTokenAuth(scheme="token")
+#token_auth = HTTPTokenAuth()
 
 
 class PasswordIn(Schema):
@@ -21,12 +24,12 @@ class PasswordIn(Schema):
 
 
 class UserIdIn(Schema):
-    userid = String(required=True, validate=Length(6))
+    userid = String(required=True)
 
 
 class UserIn(UserIdIn):
     password = String(required=True)
-
+    remember_me=String()
 
 class SignupIn(UserIn):
     username = String(required=True)
@@ -47,6 +50,15 @@ class AvatarIn(TokenIn):
     avatar = File()
 
 
+# @token_auth.verify_token
+# def verify_token(token):
+#     if User.check_token(token):
+#         user_id=User.get_info_by_token(token,"id")
+#         user=User.query.get(user_id)
+#         return user
+#     return None
+
+
 @user.get("/")
 def login_show():
     if current_user.is_authenticated:
@@ -56,27 +68,26 @@ def login_show():
 
 @user.post("/")
 @user.input(UserIn, location="form")
-# @user_bp.output(UserOut)
-def login_post(data):
-    curr_user = Employee.get_user_by_id(data.get("userid"))
+def login_post(form_data):
+    curr_user = User.query.get((form_data.get("userid")))
     if curr_user:
-        if curr_user.check_password(password=data.get("password")):
-            token = secure.generate_token(
-                {"uid": curr_user.user_id, "rid": curr_user.role_id}
-            )
-            # response.headers['token'] = token
-            return redirect(url_for("user.profile", token=token))
+        if curr_user.check_password(curr_password=form_data.get("password")):
+            #token = curr_user.generate_token()
+            # response=redirect(url_for("user.profile"))
+            # response.headers['Authorization'] = f"Bearer {token}"
+            #response=requests.get('http://localhost:5000'+url_for("user.profile"),headers={'Authorization':f"Bearer {token}"})
+            login_user(curr_user,remember=form_data.get('remember_me'),duration=datetime.timedelta(days=3))
+            return redirect(url_for("user.profile"))
     flash("请检查用户名或密码。或还未注册？")
     return render_template("login.html")
 
 
 @user.get("/logout")
-@user.input(TokenIn, location="query")
-async def logout(query_data):
-    token = query_data["token"]
-    curr_user = await Employee.get_user_by_token(token)
-    if curr_user:
-        return redirect(url_for("user.login_show"))
+#@user.auth_required(token_auth)
+#@user.input(TokenIn, location="query")
+async def logout():
+    logout_user()
+    return redirect(url_for("user.login_show"))
 
 
 @user.get("/signup")
@@ -121,23 +132,19 @@ async def post_avatar(data):
 
 
 @user.get("/profile")
-@user.input(TokenIn, location="query")
-# @token_auth.login_required
-async def profile(data):
-    curr_token = data["token"]
-    curr_user = await Employee.get_user_by_token(curr_token)
-    if curr_user:
-        if curr_user.department_id and curr_user.department_id != "None":
-            flash(f"欢迎回来～{curr_user.username}")
-            department = await Employee.get_department_by_id(curr_user.department_id)
-            return render_template(
-                "profile.html",
-                curr_user=curr_user,
-                department=department,
-                token=curr_token,
-            )
-        return render_template("profile.html", curr_user=curr_user, token=curr_token)
-    return None
+#@user.input(TokenIn, location="query")
+#@token_auth.login_required
+@login_required
+async def profile():
+    if current_user.department_id and current_user.department_id != "None":
+        flash(f"欢迎回来～{current_user.username}")
+        department = Department.query.get(current_user.department_id)
+        return render_template(
+            "profile.html",
+            curr_user=current_user,
+            department=department
+        )
+    return render_template("profile.html", curr_user=current_user)
 
 
 @user.post("/profile")

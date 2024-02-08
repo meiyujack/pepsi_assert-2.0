@@ -5,7 +5,7 @@ from markupsafe import Markup
 from . import admin
 from .user import TokenIn
 from .ledger import get_which_workbook, alignment, border
-from auth import WebSecurity
+#from auth import WebSecurity
 
 from apiflask import Schema
 from apiflask.fields import String
